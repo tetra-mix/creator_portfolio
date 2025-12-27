@@ -4,6 +4,17 @@ export type MarkdownRenderOptions = {
   linkRects?: LinkRect[];
 };
 
+// Resolve URLs for GitHub Pages project base. Only rewrite site-root paths.
+function resolveMarkdownUrl(raw: string): string {
+  // External or data/mail/tel: leave as-is
+  if (/^(https?:|data:|mailto:|tel:)/i.test(raw)) return raw;
+  const base = import.meta.env.BASE_URL ?? '/';
+  if (raw.startsWith('/')) {
+    return `${String(base).replace(/\/$/, '')}${raw}`;
+  }
+  return raw;
+}
+
 export function renderMarkdownToCanvas(
   ctx: CanvasRenderingContext2D,
   markdown: string,
@@ -103,10 +114,11 @@ export function renderMarkdownToCanvas(
     else if (line.startsWith('![')) {
       const match = line.match(/^!\[[^\]]*\]\(([^)]+)\)/);
       const url = match?.[1]?.trim();
+      const resolved = url ? resolveMarkdownUrl(url) : undefined;
       const marginH = 15;
       const ph = Math.max(80, Math.floor(contentWidth * 0.6));
-      if (url && opts.images && opts.images.has(url)) {
-        const bmp = opts.images.get(url)!;
+      if (resolved && opts.images && opts.images.has(resolved)) {
+        const bmp = opts.images.get(resolved)!;
         const targetW = contentWidth;
         const aspect = bmp.height / bmp.width;
         const targetH = Math.floor(targetW * aspect);
@@ -303,7 +315,7 @@ function parseInline(line: string): InlineToken[] {
           .replace(/^</, '')
           .replace(/>$/, '');
         flush();
-        tokens.push({ text: label, bold, strike, underline, linkUrl: url });
+        tokens.push({ text: label, bold, strike, underline, linkUrl: resolveMarkdownUrl(url) });
         i = closeParen + 1;
         continue;
       }
@@ -434,11 +446,11 @@ export async function preloadMarkdownImages(markdown: string): Promise<Map<strin
   await Promise.all(
     urls.map(async (u) => {
       try {
-        const res = await fetch(u);
+        const res = await fetch(resolveMarkdownUrl(u));
         if (!res.ok) return;
         const blob = await res.blob();
         const bmp = await createImageBitmap(blob);
-        out.set(u, bmp);
+        out.set(resolveMarkdownUrl(u), bmp);
       } catch {
         // ignore failed image
       }
