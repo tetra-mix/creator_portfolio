@@ -1,8 +1,8 @@
 import * as THREE from 'three'
-import { renderMarkdownToCanvas } from './markdownRenderer'
-import { bookContent } from './bookContent'
-import { CONFIG } from './config'
-import type { PageSide } from './types'
+import { preloadMarkdownImages, renderMarkdownToCanvas } from '../markdown/markdownRenderer'
+import { bookContent } from '../../features/content/bookContent'
+import { CONFIG } from '../three/config'
+import type { PageSide } from '../three/types'
 
 export function createWoodTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas')
@@ -64,6 +64,7 @@ export function createPageTexture(index: number, side: PageSide): THREE.CanvasTe
   const contentIndex = side === 'front' ? logicalIndex * 2 : logicalIndex * 2 + 1
   const markdown = bookContent[contentIndex] || ''
 
+  // Initial render (text + placeholders for images)
   renderMarkdownToCanvas(ctx, markdown, canvas.width, canvas.height)
 
   // Page number
@@ -78,6 +79,20 @@ export function createPageTexture(index: number, side: PageSide): THREE.CanvasTe
     tex.rotation = Math.PI
   }
   pageTextureCache.set(key, tex)
+
+  // If markdown includes images, preload them asynchronously and re-render when ready.
+  // This keeps current sync API while allowing images.
+  ;(async () => {
+    try {
+      const images = await preloadMarkdownImages(markdown)
+      if (images.size > 0) {
+        renderMarkdownToCanvas(ctx!, markdown, canvas.width, canvas.height, { images })
+        tex.needsUpdate = true
+      }
+    } catch {
+      // ignore image failures
+    }
+  })()
+
   return tex
 }
-

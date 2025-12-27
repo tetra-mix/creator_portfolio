@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { gsap } from 'gsap'
-import type { SceneContext } from './scene'
-import { CONFIG } from './config'
-import type { CoverUserData, PageGroupUserData, PageMeshUserData, PageSide, TabUserData } from './types'
+import type { SceneContext } from '../../shared/three/scene'
+import { CONFIG } from '../../shared/three/config'
+import type { CoverUserData, PageGroupUserData, PageMeshUserData, PageSide, TabUserData } from '../../shared/three/types'
 
 export function setupInteractions(ctx: SceneContext, frontCover: THREE.Mesh, pageGroups: THREE.Group[], extraTargets: THREE.Object3D[] = []) {
   const raycaster = new THREE.Raycaster()

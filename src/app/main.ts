@@ -1,10 +1,10 @@
-import { CONFIG } from './config'
-import { bookContent } from './bookContent'
-import { createScene } from './scene'
-import { createBook, createDesk } from './book'
-import { makeSetPageTexture, setupInteractions } from './interactions'
-import { createTabs } from './tabs'
-import { createDeskProps } from './props'
+import { CONFIG } from '../shared/three/config'
+import { bookContent } from '../features/content/bookContent'
+import { createScene } from '../shared/three/scene'
+import { createBook, createDesk } from '../features/book/book'
+import { makeSetPageTexture, setupInteractions } from '../features/interaction/interactions'
+import { createTabs } from '../features/book/tabs'
+import { createDeskProps } from '../features/book/props'
 
 function init() {
   const app = document.getElementById('app')

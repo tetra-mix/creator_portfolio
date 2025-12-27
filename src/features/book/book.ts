@@ -1,7 +1,7 @@
 import * as THREE from 'three'
-import { CONFIG } from './config'
-import { createWoodTexture, createPageTexture } from './textures'
-import type { CoverUserData, PageGroupUserData, PageMeshUserData } from './types'
+import { CONFIG } from '../../shared/three/config'
+import { createWoodTexture, createPageTexture } from '../../shared/render/textures'
+import type { CoverUserData, PageGroupUserData, PageMeshUserData } from '../../shared/three/types'
 
 export interface BookBuild {
   bookGroup: THREE.Group

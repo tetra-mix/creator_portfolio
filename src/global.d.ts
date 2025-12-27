@@ -1,5 +1,5 @@
 import type * as THREE from 'three'
-import type { PageSide } from './types'
+import type { PageSide } from './shared/three/types'
 
 declare global {
   interface Window {
@@ -8,4 +8,3 @@ declare global {
 }
 
 export {}
-

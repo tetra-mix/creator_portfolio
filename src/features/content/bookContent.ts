@@ -1,41 +1,20 @@
 export const bookContent = [
   // Page 1 (Front)
-  `# Introduction
-
-Welcome to my 3D Portfolio.
-
-This is a prototype of an interactive book experience built with Three.js.
-
-- Interactive pages
-- Realistic physics
-- Dynamic content`,
+  `# My Portfolio
+   ![Profile Picture](/images/profile.jpg)
+   Degital Creator & Developer
+   Ryoma Yoshitaka
+`,
 
   // Page 2 (Back)
-  `## Technologies
-
-This project uses:
-
-- React
-- Three.js
-- GSAP
-- TypeScript
-
----
-
-It demonstrates how to combine 3D graphics with web technologies.`,
+  `# About Me
+`, 
 
   // Page 3
-  `# About Me
-
-I am a creative developer passionate about building immersive web experiences.
-
-I love experimenting with:
-- WebGL
-- Shaders
-- Interactive UI`,
+  `# History`,
 
   // Page 4
-  `## Projects
+  `# Works
 
 Here are some of my recent works:
 
@@ -66,8 +45,7 @@ Feel free to reach out to me.
   `# Gallery
 
 Imagine some cool images here.
-
-(Images coming soon)`,
+`,
 
   // Page 8
   `## Credits

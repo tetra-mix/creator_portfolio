@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { CONFIG } from './config'
-import type { TabUserData, PageMeshUserData } from './types'
+import { CONFIG } from '../../shared/three/config'
+import type { TabUserData, PageMeshUserData } from '../../shared/three/types'
 
 // Attach tabs to page groups so they stay parallel to pages and move with flips.
 export function createTabs(pageGroups: THREE.Group[]): THREE.Mesh[] {

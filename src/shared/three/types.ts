@@ -30,3 +30,4 @@ export interface TabUserData {
   // Optional: exact target flips (number of pages to be flipped to left)
   targetFlips?: number
 }
+
