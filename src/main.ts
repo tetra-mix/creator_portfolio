@@ -3,6 +3,7 @@ import { bookContent } from './bookContent'
 import { createScene } from './scene'
 import { createBook, createDesk } from './book'
 import { makeSetPageTexture, setupInteractions } from './interactions'
+import { createDeskProps } from './props'
 
 function init() {
   const app = document.getElementById('app')
@@ -13,6 +14,7 @@ function init() {
   const ctx = createScene(app)
 
   createDesk(ctx.scene)
+  createDeskProps(ctx.scene)
   const { pageGroups, frontCoverMesh } = createBook(ctx.scene)
 
   setupInteractions(ctx, frontCoverMesh, pageGroups)

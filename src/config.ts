@@ -14,6 +14,23 @@ export const CONFIG = {
   // 表紙サイズの余白（ページよりわずかに大きく）
   coverOverhangX: 0.12, // 外側方向（背表紙側はフラットのまま）
   coverOverhangZ: 0.12, // 上下方向に合計でこの分広げる
+  // 小物（プロップ）
+  propsEnabled: true,
+  propsMargin: 0.6,
+  pencil: {
+    length: 2.0,
+    radius: 0.04,
+    color: 0xF2C94C, // yellow body
+    eraserColor: 0xF2994A, // orange/eraser band
+  },
+  mug: {
+    radiusTop: 0.5,
+    radiusBottom: 0.5,
+    height: 0.8,
+    thickness: 0.06,
+    color: 0xdddddd,
+    handleSide: 'right' as 'left' | 'right',
+  },
   animDuration: 0.8,
   animEase: 'power2.inOut' as const,
   // Lighting (indoor, slightly bright, natural)
