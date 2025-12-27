@@ -15,8 +15,13 @@ export function createDesk(scene: THREE.Scene): void {
   const texture = createWoodTexture()
   material.map = texture
   material.color.setHex(0xffffff)
+  if (material.map) {
+    material.map.center.set(0.5, 0.5)
+    material.map.rotation = CONFIG.woodRotation
+    material.map.needsUpdate = true
+  }
   const desk = new THREE.Mesh(geometry, material)
-  desk.rotation.x = -Math.PI / 2
+  desk.rotation.x = CONFIG.deskRotationX
   desk.receiveShadow = true
   scene.add(desk)
 }

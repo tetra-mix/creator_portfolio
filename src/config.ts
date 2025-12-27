@@ -31,6 +31,18 @@ export const CONFIG = {
     color: 0xdddddd,
     handleSide: 'right' as 'left' | 'right',
   },
+  // 付箋タブ設定
+  tabsEnabled: true,
+  tabSize: { width: 0.28, height: 0.5 },
+  tabOffsetX: 0.005, // ページ右端からの隙間（内側の余白）
+  tabOutsideX: 0.02, // 表紙右端の外側にどれだけ出すか（重なり防止）
+  tabs: [
+    // v: 0..1 で高さ方向の位置（0=下端, 1=上端）
+    // pageIndex は 1-based（例: 1=1ページ目, 2=2ページ目）
+    { label: 'Intro', pageIndex: 4, color: 0xffcc66, v: 0.8 },
+    { label: 'About', pageIndex: 8, color: 0x66ccff, v: 0.6 },
+    { label: 'Projects', pageIndex: 12, color: 0x99dd55, v: 0.4 },
+  ] as Array<{ label: string; pageIndex: number; color?: number; v?: number; hitWidth?: number; hitHeight?: number }>,
   animDuration: 0.8,
   animEase: 'power2.inOut' as const,
   // Lighting (indoor, slightly bright, natural)
@@ -42,4 +54,7 @@ export const CONFIG = {
   dirColor: 0xfff0dc,
   hemiSkyColor: 0xfff1e0,
   hemiGroundColor: 0x4a4a4a,
+  // Desk/texture orientation
+  deskRotationX: -Math.PI / 2,
+  woodRotation: Math.PI / 2,
 }

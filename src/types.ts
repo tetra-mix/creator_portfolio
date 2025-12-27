@@ -20,3 +20,13 @@ export interface PageGroupUserData {
 
 export type AnyUserData = Partial<CoverUserData & PageMeshUserData & PageGroupUserData>
 
+export interface TabUserData {
+  isTab: true
+  targetPageIndex: number
+  label?: string
+  baseColor?: number
+  // Optional: content page index this tab represents (0-based)
+  contentIndex?: number
+  // Optional: exact target flips (number of pages to be flipped to left)
+  targetFlips?: number
+}

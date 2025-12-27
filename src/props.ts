@@ -63,7 +63,7 @@ function createPencil(): THREE.Object3D {
 
 function createMug(): THREE.Object3D {
   const g = new THREE.Group()
-  const { radiusTop, radiusBottom, height, thickness, color, handleSide } = CONFIG.mug
+  const { radiusTop, radiusBottom, height, thickness, color } = CONFIG.mug
 
   // Outer wall
   const outerGeo = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, 24)
