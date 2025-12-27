@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# Abort on errors
+set -e
+
+echo "[pre-push] Checking formatting..."
+pnpm format:check
+
+echo "[pre-push] Linting..."
+pnpm lint
+
+echo "[pre-push] Building..."
+pnpm build
+
+echo "[pre-push] All checks passed. Proceeding with push."
+

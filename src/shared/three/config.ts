@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as THREE from 'three';
 
 export const CONFIG = {
   // カメラ位置（少し斜めの俯瞰）
@@ -20,8 +20,8 @@ export const CONFIG = {
   pencil: {
     length: 2.0,
     radius: 0.04,
-    color: 0xF2C94C, // yellow body
-    eraserColor: 0xF2994A, // orange/eraser band
+    color: 0xf2c94c, // yellow body
+    eraserColor: 0xf2994a, // orange/eraser band
   },
   mug: {
     radiusTop: 0.5,
@@ -42,7 +42,14 @@ export const CONFIG = {
     { label: 'Intro', pageIndex: 4, color: 0xffcc66, v: 0.8 },
     { label: 'About', pageIndex: 8, color: 0x66ccff, v: 0.6 },
     { label: 'Projects', pageIndex: 12, color: 0x99dd55, v: 0.4 },
-  ] as Array<{ label: string; pageIndex: number; color?: number; v?: number; hitWidth?: number; hitHeight?: number }>,
+  ] as Array<{
+    label: string;
+    pageIndex: number;
+    color?: number;
+    v?: number;
+    hitWidth?: number;
+    hitHeight?: number;
+  }>,
   animDuration: 0.8,
   animEase: 'power2.inOut' as const,
   // Lighting (indoor, slightly bright, natural)
@@ -57,4 +64,4 @@ export const CONFIG = {
   // Desk/texture orientation
   deskRotationX: -Math.PI / 2,
   woodRotation: Math.PI / 2,
-}
+};
