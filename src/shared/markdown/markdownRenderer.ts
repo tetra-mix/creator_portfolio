@@ -184,35 +184,7 @@ export function renderMarkdownToCanvas(
   }
 }
 
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number
-) {
-  const words = text.split(' ');
-  let line = '';
-  let currentY = y;
-
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + ' ';
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
-    
-    if (testWidth > maxWidth && n > 0) {
-      ctx.fillText(line, x, currentY);
-      line = words[n] + ' ';
-      currentY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line, x, currentY);
-  // Return the Y position after this block (not used in loop but useful if needed)
-  return currentY + lineHeight;
-}
+//
 
 type InlineToken = { text: string; bold?: boolean; strike?: boolean; underline?: boolean; linkUrl?: string }
 
