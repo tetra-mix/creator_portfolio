@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { gsap } from 'gsap';
+import { bookContent } from './bookContent';
 
 // --- Configuration ---
 const CONFIG = {
@@ -8,7 +9,7 @@ const CONFIG = {
   deskColor: 0x8B4513, // SaddleBrown
   bookCoverColor: 0x2F4F4F, // DarkSlateGray
   pageColor: 0xFFFAF0, // FloralWhite
-  pageCount: 5,
+  pageCount: Math.max(1, Math.ceil(bookContent.length / 2)),
   pageWidth: 3,
   pageHeight: 4,
   pageThickness: 0.02, // Very thin for pages
@@ -111,12 +112,12 @@ function createWoodTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null as any;
 
-  // Background
-  ctx.fillStyle = '#8B5A2B';
+  // Background (Lighter wood)
+  ctx.fillStyle = '#DEB887'; // Burlywood
   ctx.fillRect(0, 0, 512, 512);
 
-  // Grain
-  ctx.fillStyle = '#A0522D';
+  // Grain (Lighter grain)
+  ctx.fillStyle = '#CD853F'; // Peru
   for (let i = 0; i < 100; i++) {
     const x = Math.random() * 512;
     const y = Math.random() * 512;
@@ -126,8 +127,8 @@ function createWoodTexture(): THREE.CanvasTexture {
   }
   
   // Stripes
-  ctx.strokeStyle = '#6F4E37';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#8B4513'; // SaddleBrown (thinner/lighter contrast)
+  ctx.lineWidth = 1;
   for (let i = 0; i < 20; i++) {
      ctx.beginPath();
      ctx.moveTo(0, i * 25 + Math.random() * 10);
@@ -293,6 +294,8 @@ function createBook() {
   }
 }
 
+import { renderMarkdownToCanvas } from './markdownRenderer';
+
 function createPageTexture(index: number, side: 'front' | 'back'): THREE.CanvasTexture {
     const canvas = document.createElement('canvas');
     canvas.width = 256;
@@ -300,24 +303,20 @@ function createPageTexture(index: number, side: 'front' | 'back'): THREE.CanvasT
     const ctx = canvas.getContext('2d');
     if (!ctx) return new THREE.CanvasTexture(canvas);
 
-    ctx.fillStyle = '#FFF';
-    ctx.fillRect(0,0,256,350);
-    ctx.fillStyle = '#000';
-    ctx.font = '20px Arial';
-    
     // Invert index for display so top page (last index) is Page 1
     const logicalIndex = CONFIG.pageCount - 1 - index;
-    const pageNum = side === 'front' ? logicalIndex * 2 + 1 : logicalIndex * 2 + 2;
+    // Page 1 is index 0 in content array
+    // Front of logicalIndex 0 -> Page 1 -> content[0]
+    // Back of logicalIndex 0 -> Page 2 -> content[1]
+    const contentIndex = side === 'front' ? logicalIndex * 2 : logicalIndex * 2 + 1;
     
-    const text = `Page ${pageNum}`;
-    ctx.fillText(text, 50, 50);
+    const markdown = bookContent[contentIndex] || '';
     
-    // Add some lines
-    for(let j=0; j<10; j++) {
-      ctx.fillRect(20, 80 + j*20, 200, 2);
-    }
+    renderMarkdownToCanvas(ctx, markdown, canvas.width, canvas.height);
     
     // Add page number at bottom
+    const pageNum = contentIndex + 1;
+    ctx.fillStyle = '#000';
     ctx.font = '14px Arial';
     ctx.fillText(`${pageNum}`, 120, 330);
 
