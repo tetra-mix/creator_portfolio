@@ -33,7 +33,9 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm config set auto-install-peers false
+          pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm build
@@ -56,4 +58,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
