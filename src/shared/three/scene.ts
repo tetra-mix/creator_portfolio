@@ -44,7 +44,8 @@ export function createScene(app: HTMLElement): SceneContext {
   hemi.position.set(0, 8, 0)
   scene.add(hemi)
   const dirLight = new THREE.DirectionalLight(CONFIG.dirColor as THREE.ColorRepresentation, CONFIG.dirIntensity)
-  dirLight.position.set(4, 6, 2)
+  // Light from the left side of the screen (negative X)
+  dirLight.position.set(-4, 6, 2)
   dirLight.castShadow = true
   dirLight.shadow.mapSize.width = 1024
   dirLight.shadow.mapSize.height = 1024

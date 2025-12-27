@@ -81,6 +81,12 @@ export function createBook(scene: THREE.Scene): BookBuild {
     // Textures
     frontMat.map = createPageTexture(i, 'front')
     backMat.map = createPageTexture(i, 'back')
+    // Improve perceived contrast of page content by avoiding tone mapping on textures
+    frontMat.toneMapped = false
+    backMat.toneMapped = false
+    // Avoid tinting the texture; keep the paper color from the texture itself
+    frontMat.color.setHex(0xffffff)
+    backMat.color.setHex(0xffffff)
 
     pageGroup.add(frontMesh)
     pageGroup.add(backMesh)
