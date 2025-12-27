@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import type { SceneContext } from '../../shared/three/scene'
 import { CONFIG } from '../../shared/three/config'
 import type { CoverUserData, PageGroupUserData, PageMeshUserData, PageSide, TabUserData } from '../../shared/three/types'
+import { findLinkAt } from './linkRegistry'
 
 export function setupInteractions(ctx: SceneContext, frontCover: THREE.Mesh, pageGroups: THREE.Group[], extraTargets: THREE.Object3D[] = []) {
   const raycaster = new THREE.Raycaster()
@@ -83,6 +84,35 @@ export function setupInteractions(ctx: SceneContext, frontCover: THREE.Mesh, pag
     }
 
     const validTargets = getInteractiveObjects(frontCover, pageGroups)
+    // Consider only the first visible hit whose root is in current interactive set
+    let firstVisible: THREE.Intersection | null = null
+    for (const h of intersects) {
+      const root = getRootObject(h.object as THREE.Mesh)
+      if (validTargets.includes(root)) { firstVisible = h; break }
+    }
+    // If first visible is a page mesh, handle link click
+    if (firstVisible) {
+      const obj = firstVisible.object as THREE.Object3D
+      const ud = obj.userData as Partial<PageMeshUserData>
+      if ((ud as PageMeshUserData).isPageMesh && firstVisible.uv) {
+        // Find owning page group
+        let parent: THREE.Object3D | null = obj
+        let ownerGroup: THREE.Group | null = null
+        while (parent) {
+          const pud = parent.userData as Partial<PageGroupUserData>
+          if (pud.pageIndex != null && parent instanceof THREE.Group) { ownerGroup = parent as THREE.Group; break }
+          parent = parent.parent
+        }
+        if (ownerGroup) {
+          const pageIndex = (ownerGroup.userData as PageGroupUserData).pageIndex
+          const side = (obj.userData as PageMeshUserData).side
+          const uvx = side === 'back' ? (1 - firstVisible.uv.x) : firstVisible.uv.x
+          const uvy = side === 'back' ? (1 - firstVisible.uv.y) : firstVisible.uv.y
+          const url = findLinkAt(pageIndex, side as PageSide, uvx, uvy)
+          if (url) { window.open(url, '_blank'); return }
+        }
+      }
+    }
     for (const hit of intersects) {
       const targetMesh = hit.object as THREE.Mesh
       const ud = targetMesh.userData as Partial<CoverUserData & PageMeshUserData>

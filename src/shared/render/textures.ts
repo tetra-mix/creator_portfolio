@@ -1,8 +1,9 @@
 import * as THREE from 'three'
-import { preloadMarkdownImages, renderMarkdownToCanvas } from '../markdown/markdownRenderer'
+import { preloadMarkdownImages, renderMarkdownToCanvas, type LinkRect } from '../markdown/markdownRenderer'
 import { bookContent } from '../../features/content/bookContent'
 import { CONFIG } from '../three/config'
 import type { PageSide } from '../three/types'
+import { setPageLinks } from '../../features/interaction/linkRegistry'
 
 export function createWoodTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas')
@@ -65,7 +66,8 @@ export function createPageTexture(index: number, side: PageSide): THREE.CanvasTe
   const markdown = bookContent[contentIndex] || ''
 
   // Initial render (text + placeholders for images)
-  renderMarkdownToCanvas(ctx, markdown, canvas.width, canvas.height)
+  const linkRects: LinkRect[] = []
+  renderMarkdownToCanvas(ctx, markdown, canvas.width, canvas.height, { linkRects })
 
   // Page number
   const pageNum = contentIndex + 1
@@ -79,6 +81,8 @@ export function createPageTexture(index: number, side: PageSide): THREE.CanvasTe
     tex.rotation = Math.PI
   }
   pageTextureCache.set(key, tex)
+  // Persist link rectangles for interactions (click navigation)
+  setPageLinks(index, side, canvas.width, canvas.height, linkRects)
 
   // If markdown includes images, preload them asynchronously and re-render when ready.
   // This keeps current sync API while allowing images.
@@ -86,7 +90,9 @@ export function createPageTexture(index: number, side: PageSide): THREE.CanvasTe
     try {
       const images = await preloadMarkdownImages(markdown)
       if (images.size > 0) {
-        renderMarkdownToCanvas(ctx!, markdown, canvas.width, canvas.height, { images })
+        const linkRects2: LinkRect[] = []
+        renderMarkdownToCanvas(ctx!, markdown, canvas.width, canvas.height, { images, linkRects: linkRects2 })
+        setPageLinks(index, side, canvas.width, canvas.height, linkRects2)
         tex.needsUpdate = true
       }
     } catch {

@@ -1,108 +1,75 @@
 export const bookContent = [
   // Page 1 (Front)
-  `# My Portfolio
-   ![Profile Picture](/images/profile.jpg)
-   Degital Creator & Developer
-   Ryoma Yoshitaka
+  `
+  ![Profile Picture](/images/profile.jpg)
+  # Ryoma Yoshitaka
+  Degital Creator & Developer
 `,
-
-  // Page 2 (Back)
   `# About Me
-`, 
-
+   ![Profile Picture](/images/profile_mini.png)
+   
+   クリエータ志望のプログラマ
+   まだ誰みたことがない体験を作りたい
+  `,
+  `# Accounts
+  | | | 
+  | --- | --- |
+  | Github | [tetra-mix](https://github.com/tetra-mix) |
+  | Qiita | [ryouma_yoshitaka](http://qiita.com/ryouma_yoshitaka) |
+  | X / Twitter | [@yoshitaka_ryoma](https://x.com/yoshitaka_ryoma) |
+  | Instagram | [ryoma.yoshitaka](https://www.instagram.com/ryoma.yoshitaka/) |
+  | YouTube | [@ryouma_yoshitaka](https://www.youtube.com/@ryouma_yoshitaka) |
+  `,
   // Page 3
-  `# History`,
+  `# History
+   2020
+    - 第4回U-16プログラミングコンテスト三重大会 最優秀賞受賞
+   2021
+    - 全国中学高校Webコンテスト 銀賞/ベストドメインネーミング賞
+   2022
+    - ライフイズテックコンテスト 夏 SDGs問題解決部門 特別賞
+    - ライフイズテックコンテスト 冬 身の回りの問題解決部門 優秀賞
+    - 第6回U-16プログラミングコンテスト三重大会 最優秀賞
+  `,
+  `2023
+    - 第6回U-16プログラミングコンテスト三重大会 最優秀賞
+    - 第25回全国中学高校Webコンテスト 金賞
+    - 三重県玉城町より 村山賞
+    - 鈴鹿高専 電子情報工学科に入学
+   2024
+    - 高専ビジネスコンテストin鈴鹿高専 ギーク賞
+    - NIT Toba Hackathon 企業賞
+    - 2024年度 未踏ジュニアに採択
+    - 未踏ジュニアスーパークリエータ認定
 
+  `,
+  `
+   2025
+    - Web×Iotメーカーズチャレンジin三重 最優秀賞
+    - 高専ビジネスコンテストin鈴鹿高専 うるる賞
+    - Web×Iotメーカーズチャレンジグランプリ 総務省国際戦略局長賞
+    - NIT Toba Hackathon 企業賞 / 最優秀賞
+    - kloud ハッカソン#6 最優秀賞
+    - 高専プロコン競技部門 準決勝進出
+    - パソコン甲子園モバイル部門 ベストアイデア賞
+    - Hack U Kosen 2025 HappyHacking賞
+  `,
   // Page 4
-  `# Works
-
-Here are some of my recent works:
-
-1. 3D Portfolio
-2. Interactive Map
-3. Generative Art
-
-Check them out!`,
+  `# Contact
+  お問い合わせはこちらからお願いします。
+  `,
 
   // Page 5
-  `# Contact
+  `# Projects
 
-Feel free to reach out to me.
-
-- Email: test@example.com
-- Twitter: @example
-- GitHub: @example`,
-
-  // Page 6
-  `## Future Plans
-
-- Add more pages
-- Improve physics
-- Add sound effects
-- Mobile support`,
-
-  // Page 7
-  `# Gallery
-
-Imagine some cool images here.
-`,
-
-  // Page 8
-  `## Credits
-
-Built with love and code.
-
-Thanks to the open source community.`,
-
-  // Page 9
-  `# Conclusion
-
-Thank you for reading!
-
-Flip back to the start to see the cover again.`,
-
-  // Page 10
-  `## The End
-
-(c) 2025 Portfolio V2`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
-`# これはテスト
-テストページ
-テストページ
-テストページ
-`,
+  `,
+  `
+  `,
+  `# Memory
+  `,
+  `
+  `,
+  ` ## あとがき
+  
+  `,
 ];
