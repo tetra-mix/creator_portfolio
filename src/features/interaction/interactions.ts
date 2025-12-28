@@ -27,6 +27,25 @@ export function setupInteractions(
     ctx.camera.aspect = window.innerWidth / window.innerHeight;
     ctx.camera.updateProjectionMatrix();
     ctx.renderer.setSize(window.innerWidth, window.innerHeight);
+    adjustCameraForViewport();
+  }
+
+  // Adjust the camera distance based on viewport to keep the book visible on small screens
+  function adjustCameraForViewport() {
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    const aspect = w / h;
+    const baseY = CONFIG.cameraPos.y;
+    const baseZ = CONFIG.cameraPos.z;
+    let scale = 1;
+    if (w <= 360) scale = 1.9;
+    else if (w <= 480) scale = 1.7;
+    else if (w <= 640) scale = 1.5;
+    else if (w <= 820) scale = 1.25;
+    else scale = 1;
+    if (aspect < 0.7) scale *= 1.1;
+    ctx.camera.position.set(0, baseY * scale, baseZ * scale);
+    ctx.camera.lookAt(0, 0, 0);
   }
 
   //
@@ -268,15 +287,26 @@ export function setupInteractions(
     }
   }
 
+  // Pointer events support both mouse and touch
+  const onPointerDown = (e: PointerEvent) => {
+    onMouseClick({ clientX: e.clientX, clientY: e.clientY } as MouseEvent);
+  };
+  const onPointerMove = (e: PointerEvent) => {
+    onMouseMove({ clientX: e.clientX, clientY: e.clientY } as MouseEvent);
+  };
+
   window.addEventListener('resize', onWindowResize);
-  window.addEventListener('click', onMouseClick);
-  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('pointerdown', onPointerDown, { passive: true });
+  window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+  // Initial camera fit
+  adjustCameraForViewport();
 
   return {
     dispose: () => {
       window.removeEventListener('resize', onWindowResize);
-      window.removeEventListener('click', onMouseClick);
-      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
     },
   };
 }
@@ -391,4 +421,5 @@ function togglePage(group: THREE.Group) {
   });
 }
 
+//
 //
