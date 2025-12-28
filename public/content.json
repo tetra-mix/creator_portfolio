@@ -8,6 +8,6 @@
   "# Contact\nお問い合わせはこちらからお願いします。",
   "# Projects\n## 目次 - 最近の作品 -\n- こころも (Developping)\n- IchigoPerfe (Debelopping)\n- 星月夜 (Debelopping)\n- 鈴鹿回路 (New)\n- ひだまり\n- ｽﾀｯｸﾁｬﾝたちの会話をのぞこう\n- NinjaかくれんぼIoT\n- Cculture Commpass\n- みまもりぐるみ\n- FairyGuide",
   "",
-  "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>",
-  "<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>"
+  "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>",
+  "![基板](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/a30ed00f1b9a49c4adf741107ac0edb5/suzukakairo_circuit.png)\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>\n\n![加工機器](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/bbc5ebfb4b07468082afa2db98ae22da/machine.png)\n<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>"
 ]

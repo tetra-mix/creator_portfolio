@@ -3,22 +3,22 @@
     {
       "id": "5vchzcirwh-9",
       "createdAt": "2025-12-28T07:46:58.817Z",
-      "updatedAt": "2025-12-28T07:46:58.817Z",
+      "updatedAt": "2025-12-28T08:58:17.552Z",
       "publishedAt": "2025-12-28T07:46:58.817Z",
-      "revisedAt": "2025-12-28T07:46:58.817Z",
+      "revisedAt": "2025-12-28T08:58:17.552Z",
       "num": 11,
       "updated_at": "2025-12-27T15:00:00.000Z",
-      "content": "<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>"
+      "content": "![基板](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/a30ed00f1b9a49c4adf741107ac0edb5/suzukakairo_circuit.png)\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>\n\n![加工機器](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/bbc5ebfb4b07468082afa2db98ae22da/machine.png)\n<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>"
     },
     {
       "id": "neu9xg7tmmb",
       "createdAt": "2025-12-28T07:07:57.248Z",
-      "updatedAt": "2025-12-28T07:25:02.848Z",
+      "updatedAt": "2025-12-28T08:58:05.914Z",
       "publishedAt": "2025-12-28T07:07:57.248Z",
-      "revisedAt": "2025-12-28T07:25:02.848Z",
+      "revisedAt": "2025-12-28T08:58:05.914Z",
       "num": 10,
       "updated_at": "2025-12-28T07:15:00.000Z",
-      "content": "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>"
+      "content": "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>"
     },
     {
       "id": "x_i_1cgm9",
