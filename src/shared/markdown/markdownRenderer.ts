@@ -267,6 +267,7 @@ type InlineToken = {
   strike?: boolean;
   underline?: boolean;
   linkUrl?: string;
+  small?: boolean;
 };
 
 function parseInline(line: string): InlineToken[] {
@@ -276,10 +277,11 @@ function parseInline(line: string): InlineToken[] {
   let bold = false;
   let strike = false;
   let underline = false;
+  let small = false;
 
   const flush = () => {
     if (buf) {
-      tokens.push({ text: buf, bold, strike, underline });
+      tokens.push({ text: buf, bold, strike, underline, small });
       buf = '';
     }
   };
@@ -304,6 +306,19 @@ function parseInline(line: string): InlineToken[] {
       i += 2;
       continue;
     }
+    // Support <small>inline</small>
+    if (line.startsWith('<small>', i)) {
+      flush();
+      small = true;
+      i += 7;
+      continue;
+    }
+    if (line.startsWith('</small>', i)) {
+      flush();
+      small = false;
+      i += 8;
+      continue;
+    }
     if (line[i] === '[') {
       // parse [text](url)
       const close = line.indexOf(']', i + 1);
@@ -317,7 +332,7 @@ function parseInline(line: string): InlineToken[] {
           .replace(/^</, '')
           .replace(/>$/, '');
         flush();
-        tokens.push({ text: label, bold, strike, underline, linkUrl: resolveMarkdownUrl(url) });
+        tokens.push({ text: label, bold, strike, underline, linkUrl: resolveMarkdownUrl(url), small });
         i = closeParen + 1;
         continue;
       }
@@ -329,9 +344,15 @@ function parseInline(line: string): InlineToken[] {
   return tokens;
 }
 
-function withWeight(baseFont: string, makeBold: boolean): string {
-  if (!makeBold) return baseFont;
-  return baseFont.startsWith('bold ') ? baseFont : `bold ${baseFont}`;
+function withWeightAndSize(baseFont: string, makeBold: boolean, makeSmall?: boolean): string {
+  const m = baseFont.match(/^(bold\s+)?(\d+)px\s+(.+)$/);
+  if (!m) return makeBold && !baseFont.startsWith('bold ') ? `bold ${baseFont}` : baseFont;
+  const hasBold = !!m[1];
+  const size = parseInt(m[2], 10);
+  const fam = m[3];
+  const finalBold = makeBold || hasBold;
+  const finalSize = Math.max(8, Math.floor(size * (makeSmall ? 0.6 : 1)));
+  return `${finalBold ? 'bold ' : ''}${finalSize}px ${fam}`;
 }
 
 function measureInlineWidth(ctx: CanvasRenderingContext2D, text: string, baseFont: string): number {
@@ -341,7 +362,7 @@ function measureInlineWidth(ctx: CanvasRenderingContext2D, text: string, baseFon
     const parts = token.text.split(/(\s+)/);
     for (const part of parts) {
       if (part === '') continue;
-      ctx.font = withWeight(baseFont, !!token.bold);
+      ctx.font = withWeightAndSize(baseFont, !!token.bold, !!token.small);
       sum += ctx.measureText(part).width;
     }
   }
@@ -367,7 +388,7 @@ function drawInlineParagraph(
   const lineWidth = (segments: typeof lineSegments) => {
     let w = 0;
     for (const s of segments) {
-      ctx.font = withWeight(baseFont, !!s.bold);
+      ctx.font = withWeightAndSize(baseFont, !!s.bold, !!s.small);
       w += ctx.measureText(s.text).width;
     }
     return w;
@@ -376,7 +397,7 @@ function drawInlineParagraph(
   const flushLine = () => {
     let cursorX = x;
     for (const seg of lineSegments) {
-      ctx.font = withWeight(baseFont, !!seg.bold);
+      ctx.font = withWeightAndSize(baseFont, !!seg.bold, !!seg.small);
       // Use link blue for link segments, otherwise keep normal text color
       ctx.fillStyle = seg.linkUrl ? linkColor : normalColor;
       ctx.fillText(seg.text, cursorX, currentY);
@@ -418,13 +439,38 @@ function drawInlineParagraph(
     for (const part of parts) {
       if (part === '') continue;
       const seg: InlineToken & { text: string } = { ...token, text: part };
-      const nextWidth = (() => {
-        const temp = [...lineSegments, seg];
-        return lineWidth(temp);
-      })();
-      if (nextWidth > maxWidth && lineSegments.length > 0 && part.trim() !== '') {
-        flushLine();
+      // Avoid inserting leading whitespace at the beginning of a new line
+      if (lineSegments.length === 0 && /^\s+$/.test(part)) continue;
+
+      // If the segment fits as a whole, use normal flow
+      ctx.font = withWeightAndSize(baseFont, !!seg.bold, !!seg.small);
+      const segWidth = ctx.measureText(seg.text).width;
+      const usedWidth = lineWidth(lineSegments);
+      const wouldExceed = usedWidth + segWidth > maxWidth;
+
+      if (!wouldExceed) {
+        lineSegments.push(seg);
+        continue;
       }
+
+      // If this is a long unbroken run (e.g., Japanese without spaces), wrap by characters
+      // Also handle the case where segWidth > maxWidth and lineSegments is empty
+      if (!/\s/.test(part)) {
+        for (const ch of Array.from(part)) {
+          const chSeg: InlineToken & { text: string } = { ...token, text: ch };
+          ctx.font = withWeightAndSize(baseFont, !!chSeg.bold, !!chSeg.small);
+          const chW = ctx.measureText(chSeg.text).width;
+          const used = lineWidth(lineSegments);
+          if (used + chW > maxWidth && lineSegments.length > 0) {
+            flushLine();
+          }
+          lineSegments.push(chSeg);
+        }
+        continue;
+      }
+
+      // Otherwise break at whitespace boundary
+      if (lineSegments.length > 0 && part.trim() !== '') flushLine();
       lineSegments.push(seg);
     }
   }
