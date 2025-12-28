@@ -332,7 +332,14 @@ function parseInline(line: string): InlineToken[] {
           .replace(/^</, '')
           .replace(/>$/, '');
         flush();
-        tokens.push({ text: label, bold, strike, underline, linkUrl: resolveMarkdownUrl(url), small });
+        tokens.push({
+          text: label,
+          bold,
+          strike,
+          underline,
+          linkUrl: resolveMarkdownUrl(url),
+          small,
+        });
         i = closeParen + 1;
         continue;
       }
