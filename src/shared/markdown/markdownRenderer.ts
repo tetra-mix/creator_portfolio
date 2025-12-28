@@ -70,9 +70,9 @@ export function renderMarkdownToCanvas(
         opts.linkRects,
       );
     } else if (line.startsWith('## ')) {
-      const baseFont = 'bold 18px Arial';
+      const baseFont = 'bold 16px Arial';
       ctx.font = baseFont;
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = '#222';
       const text = line.substring(3);
       cursorY += 18;
       cursorY = drawInlineParagraph(
