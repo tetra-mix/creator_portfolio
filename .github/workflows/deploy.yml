@@ -43,16 +43,37 @@ jobs:
           MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
           MICROCMS_API_ENDPOINT: ${{ secrets.MICROCMS_API_ENDPOINT }}
         run: |
-          if { [ -n "$MICROCMS_SERVICE_DOMAIN" ] && [ -n "$MICROCMS_API_KEY" ]; } || { [ -n "$MICROCMS_API_ENDPOINT" ] && [ -n "$MICROCMS_API_KEY" ]; }; then \
-            mkdir -p public; \
-            endpoint="${MICROCMS_API_ENDPOINT:-https://$MICROCMS_SERVICE_DOMAIN.microcms.io/api/v1/pages}"; \
-            if echo "$endpoint" | grep -q '?'; then sep='&'; else sep='?'; fi; \
-            curl -sS -H "X-MICROCMS-API-KEY: $MICROCMS_API_KEY" \
-              "$endpoint${sep}limit=100&orders=order" \
-              -o public/microcms.raw.json; \
-            node scripts/transform-microcms.mjs public/microcms.raw.json public/content.json; \
-          else \
-            echo "MICROCMS_* secrets not set. Skipping fetch."; \
+          if { [ -n "$MICROCMS_SERVICE_DOMAIN" ] && [ -n "$MICROCMS_API_KEY" ]; } || { [ -n "$MICROCMS_API_ENDPOINT" ] && [ -n "$MICROCMS_API_KEY" ]; }; then 
+            set -e
+            mkdir -p public
+            # Resolve endpoint from MICROCMS_API_ENDPOINT (flexible) or SERVICE_DOMAIN fallback
+            raw_endpoint="${MICROCMS_API_ENDPOINT}"
+            if [ -n "$raw_endpoint" ]; then
+              if echo "$raw_endpoint" | grep -Eqi '^https?://'; then
+                full_endpoint="$raw_endpoint"
+              elif echo "$raw_endpoint" | grep -q '^/'; then
+                if [ -z "$MICROCMS_SERVICE_DOMAIN" ]; then echo "MICROCMS_SERVICE_DOMAIN required when endpoint is a path"; exit 1; fi
+                full_endpoint="https://$MICROCMS_SERVICE_DOMAIN.microcms.io$raw_endpoint"
+              else
+                if [ -z "$MICROCMS_SERVICE_DOMAIN" ]; then echo "MICROCMS_SERVICE_DOMAIN required when endpoint is not a full URL"; exit 1; fi
+                if echo "$raw_endpoint" | grep -q '/'; then
+                  full_endpoint="https://$MICROCMS_SERVICE_DOMAIN.microcms.io/$raw_endpoint"
+                else
+                  full_endpoint="https://$MICROCMS_SERVICE_DOMAIN.microcms.io/api/v1/$raw_endpoint"
+                fi
+              fi
+            else
+              full_endpoint="https://$MICROCMS_SERVICE_DOMAIN.microcms.io/api/v1/pages"
+            fi
+
+            # Append query defaults if missing
+            sep='?'; echo "$full_endpoint" | grep -q '?' && sep='&'
+            final_url="${full_endpoint}${sep}limit=100&orders=order"
+
+            curl -sS -H "X-MICROCMS-API-KEY: $MICROCMS_API_KEY" "$final_url" -o public/microcms.raw.json
+            node scripts/transform-microcms.mjs public/microcms.raw.json public/content.json
+          else
+            echo "MICROCMS_* secrets not set. Skipping fetch."
           fi
 
       - name: Build
