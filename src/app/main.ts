@@ -1,16 +1,19 @@
 import { CONFIG } from '../shared/three/config';
-import { bookContent } from '../features/content/bookContent';
+import { loadBookContent } from '../features/content/loader';
+import { setBookContent } from '../features/content/state';
 import { createScene } from '../shared/three/scene';
 import { createBook, createDesk } from '../features/book/book';
 import { makeSetPageTexture, setupInteractions } from '../features/interaction/interactions';
 import { createTabs } from '../features/book/tabs';
 import { createDeskProps } from '../features/book/props';
 
-function init() {
+async function init() {
   const app = document.getElementById('app');
   if (!app) return;
 
-  CONFIG.pageCount = Math.max(1, Math.ceil(bookContent.length / 2));
+  const content = await loadBookContent();
+  setBookContent(content);
+  CONFIG.pageCount = Math.max(1, Math.ceil(content.length / 2));
 
   const ctx = createScene(app);
 

@@ -214,6 +214,8 @@ export function renderMarkdownToCanvas(
       for (const r of rows) {
         const rowTop = cursorY;
         const baseFont = isHeader ? 'bold 14px Arial' : '14px Arial';
+        // Ensure normal text color baseline for this row so non-link text won't inherit link blue
+        ctx.fillStyle = '#000';
         let endY = rowTop;
         for (let ci = 0; ci < cols; ci++) {
           const cell = r[ci] ?? '';

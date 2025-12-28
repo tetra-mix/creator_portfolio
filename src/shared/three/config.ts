@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 export const CONFIG = {
   // カメラ位置（少し斜めの俯瞰）
-  cameraPos: new THREE.Vector3(0, 7, 5),
+  cameraPos: new THREE.Vector3(0, 6, 4),
   deskColor: 0x8b4513,
   bookCoverColor: 0xa83a07,
   pageColor: 0xfffaf0,

@@ -37,6 +37,24 @@ jobs:
           pnpm config set auto-install-peers false
           pnpm install --frozen-lockfile
 
+      - name: Fetch content from microCMS
+        env:
+          MICROCMS_SERVICE_DOMAIN: ${{ secrets.MICROCMS_SERVICE_DOMAIN }}
+          MICROCMS_API_KEY: ${{ secrets.MICROCMS_API_KEY }}
+          MICROCMS_API_ENDPOINT: ${{ secrets.MICROCMS_API_ENDPOINT }}
+        run: |
+          if { [ -n "$MICROCMS_SERVICE_DOMAIN" ] && [ -n "$MICROCMS_API_KEY" ]; } || { [ -n "$MICROCMS_API_ENDPOINT" ] && [ -n "$MICROCMS_API_KEY" ]; }; then \
+            mkdir -p public; \
+            endpoint="${MICROCMS_API_ENDPOINT:-https://$MICROCMS_SERVICE_DOMAIN.microcms.io/api/v1/pages}"; \
+            if echo "$endpoint" | grep -q '?'; then sep='&'; else sep='?'; fi; \
+            curl -sS -H "X-MICROCMS-API-KEY: $MICROCMS_API_KEY" \
+              "$endpoint${sep}limit=100&orders=order" \
+              -o public/microcms.raw.json; \
+            node scripts/transform-microcms.mjs public/microcms.raw.json public/content.json; \
+          else \
+            echo "MICROCMS_* secrets not set. Skipping fetch."; \
+          fi
+
       - name: Build
         run: pnpm build
 

@@ -16,7 +16,7 @@ export function createDeskProps(scene: THREE.Scene) {
 
   // Pencil (top edge, to the right)
   const pencil = createPencil();
-  pencil.position.set(rightX, 0, topZ + 0.3);
+  pencil.position.set(rightX, 0, topZ - 0.2);
   pencil.rotateX(Math.PI / 48);
   group.add(pencil);
 

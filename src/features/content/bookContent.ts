@@ -12,6 +12,7 @@ export const bookContent = [
    まだ誰みたことがない体験を作りたい
   `,
   `# Accounts
+  青文字をクリック！
   | | | 
   | --- | --- |
   | Github | [tetra-mix](https://github.com/tetra-mix) |
