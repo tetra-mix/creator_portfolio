@@ -1,11 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":dependencyDashboard",
-    ":semanticCommits",
-    "schedule:weekly"
-  ],
+  "extends": ["config:recommended", ":dependencyDashboard", ":semanticCommits", "schedule:weekly"],
   "timezone": "Asia/Tokyo",
   "labels": ["dependencies"],
   "prConcurrentLimit": 5,
@@ -34,12 +29,7 @@
     },
     {
       "description": "Group the React ecosystem",
-      "matchPackageNames": [
-        "react",
-        "react-dom",
-        "@types/react",
-        "@types/react-dom"
-      ],
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
       "groupName": "react"
     },
     {

@@ -32,6 +32,7 @@ Use **pnpm** (not npm/yarn). Vite is pinned to `rolldown-vite` via a pnpm overri
 ## Architecture
 
 Entry flow in `src/app/main.ts`:
+
 1. `loadBookContent()` fetches `public/content.json` (falling back to the bundled
    `bookContent.ts` array). The result is `string[]` — one Markdown string per content page.
 2. `CONFIG.pageCount` is set at runtime to `ceil(content.length / 2)` — **two content
@@ -41,6 +42,7 @@ Entry flow in `src/app/main.ts`:
    up pointer/raycaster handling.
 
 Module layout (feature-first under `src/`):
+
 - `shared/three/` — `config.ts` (the central tunable `CONFIG` object: geometry, colors,
   lighting, tabs, animation), `scene.ts` (camera/renderer/lights; **OrbitControls is
   disabled** — the camera is locked and only auto-fits to viewport), `types.ts` (the

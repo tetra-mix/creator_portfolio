@@ -40,7 +40,7 @@ export const CONFIG = {
     // v: 0..1 で高さ方向の位置（0=下端, 1=上端）
     // pageIndex は 1-based（例: 1=1ページ目, 2=2ページ目）
     { label: 'About', pageIndex: 2, color: 0xffcc66, v: 0.2 },
-    { label: 'Projects', pageIndex: 8, color: 0x99dd55, v: 0.4 }
+    { label: 'Projects', pageIndex: 8, color: 0x99dd55, v: 0.4 },
   ] as Array<{
     label: string;
     pageIndex: number;
