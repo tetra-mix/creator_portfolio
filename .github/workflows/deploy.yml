@@ -10,9 +10,13 @@ permissions:
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment, but do NOT cancel an in-progress run:
+# deploy-pages polls the live deployment to completion, and cancelling mid-flight
+# leaves Pages stuck in "deployment_queued". This matches GitHub's official
+# Pages workflow recommendation.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
