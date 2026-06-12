@@ -19,10 +19,56 @@
         height: 100vh;
         display: block;
       }
+
+      /* --- Click hint (minimal) --- */
+      #click-hint {
+        position: fixed;
+        left: 50%;
+        bottom: 8%;
+        transform: translateX(-50%);
+        z-index: 10;
+        pointer-events: none; /* don't block 3D interaction */
+        user-select: none;
+        text-align: center;
+        font-size: clamp(11px, 1.6vw, 14px);
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.92);
+        white-space: nowrap;
+        padding: 9px 20px;
+        border-radius: 999px;
+        background: rgba(20, 20, 24, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+        animation: hint-fade 2.6s ease-in-out infinite;
+        transition: opacity 0.6s ease;
+      }
+      #click-hint.is-hidden {
+        opacity: 0;
+      }
+      @keyframes hint-fade {
+        0%,
+        100% {
+          opacity: 0.7;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #click-hint {
+          animation: none;
+          opacity: 0.9;
+        }
+      }
     </style>
   </head>
   <body>
     <div id="app"></div>
+    <div id="click-hint" aria-hidden="true">tap to open</div>
     <script type="module" src="/src/app/main.ts"></script>
   </body>
 </html>

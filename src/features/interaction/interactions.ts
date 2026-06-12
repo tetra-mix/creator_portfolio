@@ -23,6 +23,54 @@ export function setupInteractions(
   let hoveredTab: THREE.Mesh | null = null;
   const HIGHLIGHT = 0xffff88;
 
+  // --- "Tap the book" teaser: the cover peeks open and closes on a loop ---
+  // until the user interacts for the first time, hinting that the book is clickable.
+  const TEASER_OPEN_ANGLE = 0.15; // radians the cover lifts at the peak of the hint
+  let teaser: gsap.core.Timeline | null = null;
+  let teaserStopped = false;
+
+  function startCoverTeaser() {
+    const coverUD = frontCover.userData as CoverUserData;
+    if (coverUD.isOpen) return; // never run once the book is open
+    const pivot = coverUD.parentPivot;
+    teaser = gsap.timeline({ repeat: -1, repeatDelay: 1.1, delay: 1.0 });
+    teaser
+      .to(pivot.rotation, {
+        z: TEASER_OPEN_ANGLE,
+        duration: 0.7,
+        ease: 'sine.inOut',
+      })
+      .to(pivot.rotation, {
+        z: 0,
+        duration: 0.7,
+        ease: 'sine.inOut',
+      });
+  }
+
+  // Stop the teaser the moment the user does anything.
+  // settleClosed=true gently returns the half-open cover to closed (e.g. on hover);
+  // when a click is about to open the cover, leave it so toggleCover owns the rotation.
+  function stopCoverTeaser(settleClosed = false) {
+    if (teaserStopped) return;
+    teaserStopped = true;
+    if (teaser) {
+      teaser.kill();
+      teaser = null;
+    }
+    const coverUD = frontCover.userData as CoverUserData;
+    gsap.killTweensOf(coverUD.parentPivot.rotation);
+    if (settleClosed && !coverUD.isOpen) {
+      gsap.to(coverUD.parentPivot.rotation, { z: 0, duration: 0.25, ease: 'sine.out' });
+    }
+
+    // Fade out the "tap to open" text hint on first interaction.
+    const hint = document.getElementById('click-hint');
+    if (hint) {
+      hint.classList.add('is-hidden');
+      window.setTimeout(() => hint.remove(), 700);
+    }
+  }
+
   function onWindowResize() {
     ctx.camera.aspect = window.innerWidth / window.innerHeight;
     ctx.camera.updateProjectionMatrix();
@@ -91,6 +139,9 @@ export function setupInteractions(
   }
 
   function onMouseClick(event: MouseEvent) {
+    // First user action ends the "tap the book" teaser animation
+    // and settles the half-open cover back to closed.
+    stopCoverTeaser(true);
     if (busy) return;
     // If a tab is currently hovered, prioritize its navigation.
     if (hoveredTab) {
@@ -251,6 +302,12 @@ export function setupInteractions(
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, ctx.camera);
 
+    // Show a pointer cursor only over things a click actually responds to:
+    // the current top page(s)/cover plus the navigation tabs.
+    const clickableTargets = [...getInteractiveObjects(frontCover, pageGroups), ...extraTargets];
+    const clickableHits = raycaster.intersectObjects(clickableTargets, true);
+    ctx.renderer.domElement.style.cursor = clickableHits.length > 0 ? 'pointer' : 'default';
+
     const hits = raycaster.intersectObjects(extraTargets, true);
     let newHover: THREE.Mesh | null = null;
     for (const h of hits) {
@@ -302,11 +359,15 @@ export function setupInteractions(
   // Initial camera fit
   adjustCameraForViewport();
 
+  // Begin the "tap the book" teaser once everything is set up.
+  startCoverTeaser();
+
   return {
     dispose: () => {
       window.removeEventListener('resize', onWindowResize);
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
+      if (teaser) teaser.kill();
     },
   };
 }
@@ -380,6 +441,9 @@ function toggleCover(mesh: THREE.Mesh) {
   const ud = mesh.userData as CoverUserData;
   const pivot = ud.parentPivot;
   const isOpen = ud.isOpen;
+
+  // Cancel any leftover teaser tween so it doesn't fight this open/close animation.
+  gsap.killTweensOf(pivot.rotation);
 
   const targetRot = isOpen ? 0 : Math.PI;
   const rightY =
