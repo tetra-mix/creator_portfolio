@@ -2,15 +2,32 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CONFIG } from './config';
 
+// Per-frame callback. `delta` is seconds elapsed since the previous frame
+// (from THREE.Clock), needed e.g. to advance AnimationMixers.
+export type Updater = (delta: number) => void;
+
 export interface SceneContext {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
+  // Register a callback to run every animation frame; returns an unsubscribe fn.
+  addUpdater: (fn: Updater) => () => void;
+  // Invoked by the animation loop in main.ts each frame.
+  runUpdaters: (delta: number) => void;
 }
 
 export function createScene(app: HTMLElement): SceneContext {
   const scene = new THREE.Scene();
+
+  const updaters = new Set<Updater>();
+  const addUpdater = (fn: Updater) => {
+    updaters.add(fn);
+    return () => updaters.delete(fn);
+  };
+  const runUpdaters = (delta: number) => {
+    for (const fn of updaters) fn(delta);
+  };
 
   const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
   camera.position.copy(CONFIG.cameraPos);
@@ -60,5 +77,5 @@ export function createScene(app: HTMLElement): SceneContext {
   (dirLight.shadow as THREE.LightShadow & { radius?: number }).radius = 3;
   scene.add(dirLight);
 
-  return { scene, camera, renderer, controls };
+  return { scene, camera, renderer, controls, addUpdater, runUpdaters };
 }

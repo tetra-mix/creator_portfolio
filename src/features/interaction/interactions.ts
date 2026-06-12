@@ -10,6 +10,13 @@ import type {
   TabUserData,
 } from '../../shared/three/types';
 import { findLinkAt } from './linkRegistry';
+import type { GltfPropUserData } from '../book/gltfProp';
+
+// glTF props are added to the scene asynchronously, so collect them fresh
+// on each pointer event rather than caching at setup time.
+function collectGltfProps(scene: THREE.Scene): THREE.Object3D[] {
+  return scene.children.filter((o) => (o.userData as Partial<GltfPropUserData>).isGltfProp);
+}
 
 export function setupInteractions(
   ctx: SceneContext,
@@ -156,7 +163,13 @@ export function setupInteractions(
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, ctx.camera);
 
-    const targets: THREE.Object3D[] = [frontCover, ...pageGroups, ...extraTargets];
+    // Include any clickable glTF props sitting directly under the scene.
+    const targets: THREE.Object3D[] = [
+      frontCover,
+      ...pageGroups,
+      ...extraTargets,
+      ...collectGltfProps(ctx.scene),
+    ];
     const intersects = raycaster.intersectObjects(targets, true);
     if (intersects.length === 0) return;
 
@@ -169,6 +182,19 @@ export function setupInteractions(
         const flips = computeDesiredFlipsFromObject(hit.object);
         navigateToFlipCount(flips);
         return;
+      }
+    }
+
+    // glTF prop: walk up from the hit mesh to the prop root and play it.
+    for (const hit of intersects) {
+      let cur: THREE.Object3D | null = hit.object;
+      while (cur) {
+        const pud = cur.userData as Partial<GltfPropUserData>;
+        if (pud.isGltfProp && typeof pud.play === 'function') {
+          pud.play();
+          return;
+        }
+        cur = cur.parent;
       }
     }
 
@@ -303,8 +329,12 @@ export function setupInteractions(
     raycaster.setFromCamera(mouse, ctx.camera);
 
     // Show a pointer cursor only over things a click actually responds to:
-    // the current top page(s)/cover plus the navigation tabs.
-    const clickableTargets = [...getInteractiveObjects(frontCover, pageGroups), ...extraTargets];
+    // the current top page(s)/cover, the navigation tabs, and clickable props.
+    const clickableTargets = [
+      ...getInteractiveObjects(frontCover, pageGroups),
+      ...extraTargets,
+      ...collectGltfProps(ctx.scene),
+    ];
     const clickableHits = raycaster.intersectObjects(clickableTargets, true);
     ctx.renderer.domElement.style.cursor = clickableHits.length > 0 ? 'pointer' : 'default';
 
