@@ -20,6 +20,10 @@ export interface PageGroupUserData {
 
 export type AnyUserData = Partial<CoverUserData & PageMeshUserData & PageGroupUserData>;
 
+export interface ContactLetterUserData {
+  isContactLetter: true;
+}
+
 export interface TabUserData {
   isTab: true;
   targetPageIndex: number;

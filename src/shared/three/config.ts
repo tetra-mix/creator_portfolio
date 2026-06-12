@@ -31,6 +31,19 @@ export const CONFIG = {
     color: 0xdddddd,
     handleSide: 'right' as 'left' | 'right',
   },
+  // お問い合わせ便箋。本の右側にやや離して、机に 45 度斜めで平置きする。
+  // クリックするとカメラが斜めから回り込んで便箋に正対する（interactions.ts）。
+  letter: {
+    position: new THREE.Vector3(5.6, 0.011, 0.6), // 本よりさらに右。y は机からわずかに浮かせる
+    rotationY: -Math.PI / 4, // 机の上で 45 度ひねって置く（時計回り）
+    size: { width: 2.2, height: 3.0 },
+    color: 0xfaf3e0,
+    // letter mode のカメラの寄り方。
+    // viewDistance: 便箋からカメラまでの距離（寄り具合。角度を変えても一定）。
+    // viewPitchDeg: 見下ろし角（0=真横/水平, 90=真上）。ここだけで傾きを調整できる。
+    viewDistance: 5.0,
+    viewPitchDeg: 58,
+  },
   // 付箋タブ設定
   tabsEnabled: true,
   tabSize: { width: 0.28, height: 0.5 },

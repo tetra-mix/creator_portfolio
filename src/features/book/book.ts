@@ -10,7 +10,7 @@ export interface BookBuild {
 }
 
 export function createDesk(scene: THREE.Scene): void {
-  const geometry = new THREE.PlaneGeometry(20, 20);
+  const geometry = new THREE.PlaneGeometry(40, 40);
   const material = new THREE.MeshStandardMaterial({
     color: 0xdddddd,
     roughness: 0.7,

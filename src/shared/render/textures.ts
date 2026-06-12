@@ -43,7 +43,8 @@ export function createWoodTexture(): THREE.CanvasTexture {
   const texture = new THREE.CanvasTexture(canvas);
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(4, 4);
+  // Keep the grain density consistent on the enlarged (40x40) desk.
+  texture.repeat.set(8, 8);
   return texture;
 }
 
