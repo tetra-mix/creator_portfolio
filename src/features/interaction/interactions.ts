@@ -25,7 +25,7 @@ export function setupInteractions(
 
   // --- "Tap the book" teaser: the cover peeks open and closes on a loop ---
   // until the user interacts for the first time, hinting that the book is clickable.
-  const TEASER_OPEN_ANGLE = 0.15; // radians the cover lifts at the peak of the hint
+  const TEASER_OPEN_ANGLE = 0.1; // radians the cover lifts at the peak of the hint
   let teaser: gsap.core.Timeline | null = null;
   let teaserStopped = false;
 
