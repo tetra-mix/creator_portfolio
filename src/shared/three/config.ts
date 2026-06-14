@@ -31,6 +31,32 @@ export const CONFIG = {
     color: 0xdddddd,
     handleSide: 'right' as 'left' | 'right',
   },
+  // お問い合わせ便箋。本の右側にやや離して、机に 45 度斜めで平置きする。
+  // クリックするとカメラが斜めから回り込んで便箋に正対する（interactions.ts）。
+  letter: {
+    position: new THREE.Vector3(5.6, 0.011, 0.6), // 本よりさらに右。y は机からわずかに浮かせる
+    rotationY: -Math.PI / 4, // 机の上で 45 度ひねって置く（時計回り）
+    size: { width: 2.2, height: 3.0 },
+    color: 0xfaf3e0,
+    // letter mode のカメラの寄り方。
+    // viewDistance: 便箋からカメラまでの距離（寄り具合。角度を変えても一定）。
+    // viewPitchDeg: 見下ろし角（0=真横/水平, 90=真上）。ここだけで傾きを調整できる。
+    viewDistance: 5.0,
+    viewPitchDeg: 58,
+  },
+  // 投函ポスト（郵便受け）。便箋の画面右側に置き、letter mode の視界に入れる。
+  // クリックすると便箋がポストへ飛んで入り、メールが送信される（interactions.ts）。
+  post: {
+    position: new THREE.Vector3(7.6, 0, 2.5), // 便箋(5.6,0,0.6)のさらに右（カメラ右方向に寄せる）
+    targetHeight: 1.6, // 机の上でのモデル高さ(units)。自動スケール
+    rotationY: (Math.PI / 3) * 4, // 240°（投函口の向き）
+    // 便箋が飛び込む投函口の位置。モデルのバウンディングボックスを基準にした割合。
+    // slotOffsetY: 高さ方向（0=底, 1=天面）。slotOffsetX/Z: 中心からの水平ずれ
+    // （-0.5〜0.5 でボックス幅・奥行きの半分。投函口が中心から外れている場合に調整）。
+    slotOffsetY: 0.9,
+    slotOffsetX: 0,
+    slotOffsetZ: 0,
+  },
   // 付箋タブ設定
   tabsEnabled: true,
   tabSize: { width: 0.28, height: 0.5 },
