@@ -44,6 +44,19 @@ export const CONFIG = {
     viewDistance: 5.0,
     viewPitchDeg: 58,
   },
+  // 投函ポスト（郵便受け）。便箋の画面右側に置き、letter mode の視界に入れる。
+  // クリックすると便箋がポストへ飛んで入り、メールが送信される（interactions.ts）。
+  post: {
+    position: new THREE.Vector3(7.6, 0, 2.5), // 便箋(5.6,0,0.6)のさらに右（カメラ右方向に寄せる）
+    targetHeight: 1.6, // 机の上でのモデル高さ(units)。自動スケール
+    rotationY: (Math.PI / 3) * 4, // 240°（投函口の向き）
+    // 便箋が飛び込む投函口の位置。モデルのバウンディングボックスを基準にした割合。
+    // slotOffsetY: 高さ方向（0=底, 1=天面）。slotOffsetX/Z: 中心からの水平ずれ
+    // （-0.5〜0.5 でボックス幅・奥行きの半分。投函口が中心から外れている場合に調整）。
+    slotOffsetY: 0.9,
+    slotOffsetX: 0,
+    slotOffsetZ: 0,
+  },
   // 付箋タブ設定
   tabsEnabled: true,
   tabSize: { width: 0.28, height: 0.5 },

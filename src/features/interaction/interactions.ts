@@ -4,6 +4,7 @@ import type { SceneContext } from '../../shared/three/scene';
 import { CONFIG } from '../../shared/three/config';
 import type {
   CoverUserData,
+  MailboxUserData,
   PageGroupUserData,
   PageMeshUserData,
   PageSide,
@@ -243,6 +244,51 @@ export function setupInteractions(
     return raycaster.intersectObjects([frontCover, ...pageGroups], true).length > 0;
   }
 
+  // The mailbox/post loads asynchronously, so look it up fresh from the scene
+  // each time (a captured reference would be null at setup). Returns null until
+  // the model has loaded and tagged itself with userData.isMailbox.
+  function findMailbox(): THREE.Object3D | null {
+    return (
+      ctx.scene.children.find((o) => (o.userData as Partial<MailboxUserData>).isMailbox) ?? null
+    );
+  }
+
+  // Has a raycast from the current pointer hit the post?
+  function pointerHitsPost(): boolean {
+    const post = findMailbox();
+    return !!post && raycaster.intersectObject(post, true).length > 0;
+  }
+
+  // World-space "slot" the letter flies into. Measured once at load time and
+  // cached on the post's userData (see post.ts). Null if the post isn't loaded.
+  function mailboxSlotWorld(): THREE.Vector3 | null {
+    const post = findMailbox();
+    return (post?.userData as Partial<MailboxUserData>)?.slot ?? null;
+  }
+
+  // Submit the letter and, on success, fly it into the post and return to book.
+  function submitAndFly(): void {
+    if (posting) return; // guard against double-taps
+    writer?.submit(() => {
+      posting = true;
+      const slot = mailboxSlotWorld();
+      // Pan back to the book shortly after the letter starts its flight.
+      window.setTimeout(() => {
+        viewMode = 'book';
+        panToMode('book');
+      }, 700);
+      if (contactLetter) {
+        playLetterFlight(contactLetter, slot, () => {
+          writer?.reset();
+          posting = false;
+        });
+      } else {
+        writer?.reset();
+        posting = false;
+      }
+    });
+  }
+
   function onMouseClick(event: MouseEvent) {
     // First user action ends the "tap the book" teaser animation
     // and settles the half-open cover back to closed.
@@ -253,38 +299,23 @@ export function setupInteractions(
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, ctx.camera);
 
-    // --- Letter mode: tap a field to switch the caret, tap the book to leave. ---
-    // Hard-gate so book flips / tabs never fire while writing the letter.
+    // --- Letter mode: tap the post to send, tap a field to switch the caret,
+    // tap the book to leave. Hard-gate so book flips / tabs never fire here. ---
     if (viewMode === 'letter') {
-      // While the sent letter is flying off, ignore all letter taps so it can't
-      // be re-submitted or re-focused mid-animation.
+      // While the sent letter is flying into the post, ignore all taps so it
+      // can't be re-submitted or re-focused mid-animation.
       if (posting) return;
 
+      // Tap the post → submit + fly the letter into it.
+      if (pointerHitsPost()) {
+        submitAndFly();
+        return;
+      }
+
+      // Tap a field region → move the caret there.
       const uv = pointerLetterUV();
       if (uv && letterCanvas) {
         const hit = letterCanvas.hitTest(uv.x, uv.y);
-        if (hit === 'send') {
-          // Submit; on success, fly the letter off and return to book view.
-          writer?.submit(() => {
-            posting = true;
-            // Pan back to the book shortly after lift-off for a smooth exit.
-            window.setTimeout(() => {
-              viewMode = 'book';
-              panToMode('book');
-            }, 700);
-            if (contactLetter) {
-              playLetterFlight(contactLetter, () => {
-                // Flight done: clear the sheet and release the lock.
-                writer?.reset();
-                posting = false;
-              });
-            } else {
-              writer?.reset();
-              posting = false;
-            }
-          });
-          return;
-        }
         if (hit) {
           writer?.focusField(hit);
           return;
@@ -492,8 +523,9 @@ export function setupInteractions(
     // The clickable set depends on the view mode.
     let clickableTargets: THREE.Object3D[];
     if (viewMode === 'letter') {
-      // Only "go back to the book" is actionable while writing.
-      clickableTargets = [frontCover, ...pageGroups];
+      // While writing: the post (to send) and the book (to go back) are clickable.
+      const post = findMailbox();
+      clickableTargets = [frontCover, ...pageGroups, ...(post ? [post] : [])];
     } else {
       // Book mode: top page(s)/cover, tabs, props, and the peeking letter.
       clickableTargets = [

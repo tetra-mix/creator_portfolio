@@ -4,24 +4,68 @@ import type { LetterCanvas, LetterField, LetterStatus, LetterValues } from './le
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xvznvpqz';
 
 // Letter writing controller. No modal: the user writes directly onto the 3D
-// sheet, which has three fields (subject / email / message) plus a Send button.
-// A single hidden <textarea> captures keystrokes for whichever field is active;
-// tapping a region on the paper switches the active field (driven from
-// interactions.ts via the canvas hitTest).
+// sheet, which has three fields (subject / email / message). A single hidden
+// <textarea> captures keystrokes for whichever field is active; tapping a region
+// on the paper switches the active field (driven from interactions.ts via the
+// canvas hitTest). Sending is triggered by clicking the desk post; send progress
+// is surfaced via a small status toast (not on the sheet).
 export interface LetterWriter {
   // Enter writing mode and focus the given field (opens the mobile keyboard).
   begin(field?: LetterField): void;
   // Switch the active field (e.g. the user tapped another region).
   focusField(field: LetterField): void;
   // Submit the letter to Formspree. `onSent` runs once on a successful send
-  // (used to play the "letter flies off" animation). No-op while already
-  // sending or already sent (prevents duplicate submissions).
+  // (used to play the "letter flies into the post" animation). No-op while
+  // already sending or already sent (prevents duplicate submissions).
   submit(onSent?: () => void): void;
   // Clear all fields back to a blank, idle letter (after a successful post).
   reset(): void;
   // Leave writing mode.
   end(): void;
   dispose(): void;
+}
+
+// A small, transient toast that surfaces send progress (sending / sent / error)
+// without putting any UI on the 3D sheet. Mirrors the #click-hint styling.
+function createStatusToast() {
+  const el = document.createElement('div');
+  el.id = 'contact-status';
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+  document.body.appendChild(el);
+  let hideTimer = 0;
+
+  return {
+    // `message` overrides the default text for the status (used for specific
+    // validation hints like "メールアドレスを入力してください").
+    show(status: LetterStatus, message?: string) {
+      window.clearTimeout(hideTimer);
+      const text =
+        message ??
+        (status === 'sending'
+          ? '送信中…'
+          : status === 'sent'
+            ? '送信しました ✉'
+            : status === 'error'
+              ? '送信できませんでした。もう一度お試しください。'
+              : '');
+      if (!text) {
+        el.classList.remove('is-visible');
+        return;
+      }
+      el.textContent = text;
+      el.classList.toggle('is-error', status === 'error');
+      el.classList.add('is-visible');
+      // Auto-dismiss terminal states; keep "Sending…" until it resolves.
+      if (status === 'sent' || status === 'error') {
+        hideTimer = window.setTimeout(() => el.classList.remove('is-visible'), 3200);
+      }
+    },
+    dispose() {
+      window.clearTimeout(hideTimer);
+      el.remove();
+    },
+  };
 }
 
 export function createLetterWriter(letter: LetterCanvas): LetterWriter {
@@ -59,15 +103,21 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
   ].join(';');
   document.body.appendChild(input);
 
-  const render = () => letter.draw(values, active, writing && caretOn, writing, status);
+  const toast = createStatusToast();
+  const setStatus = (s: LetterStatus, message?: string) => {
+    status = s;
+    toast.show(s, message);
+  };
+
+  const render = () => letter.draw(values, active, writing && caretOn, writing);
 
   // Email/subject are single-line: collapse newlines as the user types.
   const onInput = () => {
     caretOn = true;
     const v = active === 'message' ? input.value : input.value.replace(/\n/g, '');
     values[active] = v;
-    // Editing after a send/error clears the status so the button returns to idle.
-    if (status === 'sent' || status === 'error') status = 'idle';
+    // Editing after a send/error clears the status so the toast goes away.
+    if (status === 'sent' || status === 'error') setStatus('idle');
     render();
   };
   input.addEventListener('input', onInput);
@@ -132,9 +182,12 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
       const message = values.message.trim();
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       if (!emailOk || !message) {
-        status = 'error';
+        setStatus(
+          'error',
+          !emailOk ? 'メールアドレスを正しく入力してください。' : '本文を入力してください。',
+        );
         // Re-enter writing mode and focus the field that needs fixing so the
-        // caret blinks and keystrokes are captured even if Send was tapped
+        // caret blinks and keystrokes are captured even if the post was tapped
         // after focus was lost.
         writing = true;
         focusField(!emailOk ? 'email' : 'message');
@@ -142,7 +195,7 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
         return;
       }
 
-      status = 'sending';
+      setStatus('sending');
       // Stop editing UI while the request is in flight.
       writing = false;
       input.blur();
@@ -162,13 +215,13 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
       })
         .then((res) => {
           if (!res.ok) throw new Error(`Formspree responded ${res.status}`);
-          status = 'sent';
+          setStatus('sent');
           render();
           onSent?.();
         })
         .catch((err) => {
           console.error('[contact] send failed', err);
-          status = 'error';
+          setStatus('error');
           render();
         });
     },
@@ -178,7 +231,7 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
       values.message = '';
       active = 'subject';
       writing = false;
-      status = 'idle';
+      setStatus('idle');
       input.value = '';
       input.blur();
       stopBlink();
@@ -196,6 +249,7 @@ export function createLetterWriter(letter: LetterCanvas): LetterWriter {
       input.removeEventListener('keydown', onKeyDown);
       input.removeEventListener('focusout', onFocusOut);
       input.remove();
+      toast.dispose();
     },
   };
 }

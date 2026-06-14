@@ -21,6 +21,9 @@ export interface GltfPropOptions {
   // `repeat` is how many times that clip loops (default 1). Omit/empty to make
   // the model non-clickable.
   clickClips?: ClickClip[];
+  // Called with the loaded model root just before it is added to the scene, so a
+  // caller can tag custom userData (e.g. the mailbox flag). Optional.
+  onReady?: (root: THREE.Object3D) => void;
 }
 
 export interface ClickClip {
@@ -48,7 +51,15 @@ function pickClip(clips: THREE.AnimationClip[], name: string): THREE.AnimationCl
 // model appears whenever it finishes loading. Model-specific tuning lives in the
 // caller (e.g. src/features/book/m5stackchan.ts), not here.
 export function addGltfProp(ctx: SceneContext, options: GltfPropOptions): void {
-  const { file, position, targetHeight = 0, rotationY = 0, autoplayClip, clickClips } = options;
+  const {
+    file,
+    position,
+    targetHeight = 0,
+    rotationY = 0,
+    autoplayClip,
+    clickClips,
+    onReady,
+  } = options;
 
   const loader = new GLTFLoader();
   // BASE_URL is a path (e.g. '/creator_portfolio/'), not an absolute URL, so it
@@ -86,6 +97,7 @@ export function addGltfProp(ctx: SceneContext, options: GltfPropOptions): void {
 
       // No animation clips: it's a static decoration, nothing more to wire up.
       if (gltf.animations.length === 0) {
+        onReady?.(model);
         ctx.scene.add(model);
         return;
       }
@@ -148,6 +160,7 @@ export function addGltfProp(ctx: SceneContext, options: GltfPropOptions): void {
         }
       }
 
+      onReady?.(model);
       ctx.scene.add(model);
     },
     undefined,

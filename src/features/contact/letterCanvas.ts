@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 
 // Which part of the letter a tap landed on. A field moves the caret there;
-// 'send' submits; null is a tap on dead space.
+// null is a tap on dead space. (Sending happens by clicking the desk post.)
 export type LetterField = 'subject' | 'email' | 'message';
-export type LetterHit = LetterField | 'send' | null;
+export type LetterHit = LetterField | null;
 
-// Submission lifecycle shown on the sheet's Send button / status line.
+// Submission lifecycle. Surfaced via a separate status toast (see contactForm),
+// not on the sheet itself.
 export type LetterStatus = 'idle' | 'sending' | 'sent' | 'error';
 
 export interface LetterValues {
@@ -14,29 +15,12 @@ export interface LetterValues {
   message: string;
 }
 
-// A rectangular hit region in normalized letter UV space (0..1, origin bottom-left
-// like three.js UVs). Used by interactions.ts to map a raycast UV to a field.
-export interface LetterRegion {
-  field: LetterHit;
-  u0: number;
-  u1: number;
-  v0: number;
-  v1: number;
-}
-
 export interface LetterCanvas {
   texture: THREE.CanvasTexture;
   // Redraw the whole sheet for the given field values, highlighting `active`
-  // and blinking its caret when `caretVisible`. `status` drives the Send button
-  // label and a status line (defaults to 'idle').
-  draw(
-    values: LetterValues,
-    active: LetterField,
-    caretVisible: boolean,
-    writing: boolean,
-    status?: LetterStatus,
-  ): void;
-  // Map a UV hit (three.js convention: v=0 bottom) to a field/button/null.
+  // and blinking its caret when `caretVisible`.
+  draw(values: LetterValues, active: LetterField, caretVisible: boolean, writing: boolean): void;
+  // Map a UV hit (three.js convention: v=0 bottom) to a field or null.
   hitTest(u: number, v: number): LetterHit;
 }
 
@@ -60,15 +44,8 @@ const LAYOUT = {
   emailBottom: 178,
   messageLabelY: 198,
   messageTop: 204,
-  messageBottom: 350, // shortened to make room for the Send button below
-  // Send button + status line near the bottom of the sheet.
-  sendTop: 364,
-  sendBottom: 396,
-  statusY: 412,
+  messageBottom: 398, // runs to near the bottom (no Send button anymore)
 };
-// Send button horizontal extent (canvas px).
-const SEND_X0 = MARGIN_X;
-const SEND_X1 = LOGICAL_W - MARGIN_X;
 
 export function createLetterCanvas(): LetterCanvas {
   const canvas = document.createElement('canvas');
@@ -84,35 +61,33 @@ export function createLetterCanvas(): LetterCanvas {
   }
   ctx.scale(scale, scale);
 
-  // Tap regions in pixel space; converted to UV in hitTest.
+  // Tap regions in pixel space; converted to UV in hitTest. Each field's band
+  // extends to meet the next field's label so there are no dead gaps between
+  // them — every tap on the sheet lands in the nearest field, which matters
+  // because the tilted letter makes precise tapping harder in letter mode.
+  const SUBJECT_EMAIL_SPLIT = (LAYOUT.subjectBottom + (LAYOUT.emailLabelY - 8)) / 2;
+  const EMAIL_MSG_SPLIT = (LAYOUT.emailBottom + (LAYOUT.messageLabelY - 8)) / 2;
   const regions: Array<{ field: LetterHit; x0: number; y0: number; x1: number; y1: number }> = [
     {
       field: 'subject',
       x0: MARGIN_X,
-      y0: LAYOUT.subjectLabelY - 8,
+      y0: 0,
       x1: LOGICAL_W - MARGIN_X,
-      y1: LAYOUT.subjectBottom,
+      y1: SUBJECT_EMAIL_SPLIT,
     },
     {
       field: 'email',
       x0: MARGIN_X,
-      y0: LAYOUT.emailLabelY - 8,
+      y0: SUBJECT_EMAIL_SPLIT,
       x1: LOGICAL_W - MARGIN_X,
-      y1: LAYOUT.emailBottom,
+      y1: EMAIL_MSG_SPLIT,
     },
     {
       field: 'message',
       x0: MARGIN_X,
-      y0: LAYOUT.messageLabelY - 8,
+      y0: EMAIL_MSG_SPLIT,
       x1: LOGICAL_W - MARGIN_X,
-      y1: LAYOUT.messageBottom,
-    },
-    {
-      field: 'send',
-      x0: SEND_X0,
-      y0: LAYOUT.sendTop,
-      x1: SEND_X1,
-      y1: LAYOUT.sendBottom,
+      y1: LOGICAL_H,
     },
   ];
 
@@ -178,78 +153,11 @@ export function createLetterCanvas(): LetterCanvas {
     void top;
   }
 
-  // Rounded-rect path helper for the Send button.
-  function roundRect(x: number, y: number, w: number, h: number, r: number) {
-    const c = ctx!;
-    c.beginPath();
-    c.moveTo(x + r, y);
-    c.arcTo(x + w, y, x + w, y + h, r);
-    c.arcTo(x + w, y + h, x, y + h, r);
-    c.arcTo(x, y + h, x, y, r);
-    c.arcTo(x, y, x + w, y, r);
-    c.closePath();
-  }
-
-  function drawSendButton(status: LetterStatus) {
-    const c = ctx!;
-    const x = SEND_X0;
-    const y = LAYOUT.sendTop;
-    const w = SEND_X1 - SEND_X0;
-    const h = LAYOUT.sendBottom - LAYOUT.sendTop;
-
-    // Button fill changes with status for clear feedback.
-    const fill =
-      status === 'sending'
-        ? 'rgba(150, 120, 80, 0.45)'
-        : status === 'sent'
-          ? 'rgba(70, 130, 80, 0.9)'
-          : status === 'error'
-            ? 'rgba(170, 70, 60, 0.9)'
-            : 'rgba(150, 90, 40, 0.92)';
-    roundRect(x, y, w, h, 8);
-    c.fillStyle = fill;
-    c.fill();
-
-    const label =
-      status === 'sending'
-        ? 'Sending...'
-        : status === 'sent'
-          ? 'Sent'
-          : status === 'error'
-            ? 'Retry'
-            : 'Send';
-    c.fillStyle = '#faf3e0';
-    c.font = "600 14px Georgia, 'Times New Roman', serif";
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    c.fillText(label, x + w / 2, y + h / 2 + 1);
-    c.textAlign = 'left';
-    c.textBaseline = 'alphabetic';
-
-    // Status line under the button.
-    const msg =
-      status === 'sending'
-        ? 'Posting your letter...'
-        : status === 'sent'
-          ? 'Thank you! Your letter is on its way.'
-          : status === 'error'
-            ? 'Could not send. Check your input and try again.'
-            : '';
-    if (msg) {
-      c.fillStyle = status === 'error' ? 'rgba(170, 70, 60, 0.95)' : 'rgba(90, 70, 45, 0.85)';
-      c.font = "600 10px Georgia, 'Times New Roman', serif";
-      c.textAlign = 'center';
-      c.fillText(msg, LOGICAL_W / 2, LAYOUT.statusY);
-      c.textAlign = 'left';
-    }
-  }
-
   function draw(
     values: LetterValues,
     active: LetterField,
     caretVisible: boolean,
     writing: boolean,
-    status: LetterStatus = 'idle',
   ): void {
     const c = ctx!;
     const maxW = LOGICAL_W - MARGIN_X * 2;
@@ -265,7 +173,7 @@ export function createLetterCanvas(): LetterCanvas {
     c.fillStyle = 'rgba(90, 70, 45, 0.9)';
     c.font = "600 22px Georgia, 'Times New Roman', serif";
     c.textBaseline = 'alphabetic';
-    c.fillText('Contact', MARGIN_X, LAYOUT.headerY);
+    c.fillText('お問い合わせ (Contact)', MARGIN_X, LAYOUT.headerY);
     c.strokeStyle = 'rgba(150, 120, 80, 0.4)';
     c.lineWidth = 1.5;
     c.beginPath();
@@ -274,7 +182,7 @@ export function createLetterCanvas(): LetterCanvas {
     c.stroke();
 
     // --- Subject ---
-    label('Subject', LAYOUT.subjectLabelY, active === 'subject');
+    label('タイトル (Title)', LAYOUT.subjectLabelY, active === 'subject');
     underline(LAYOUT.subjectTop, LAYOUT.subjectBottom, active === 'subject');
     c.fillStyle = '#2f2a3a';
     c.font = TEXT_FONT;
@@ -285,7 +193,7 @@ export function createLetterCanvas(): LetterCanvas {
     }
 
     // --- Your e-mail address ---
-    label('Your E-mail Address', LAYOUT.emailLabelY, active === 'email');
+    label('メールアドレス (E-mail Address)', LAYOUT.emailLabelY, active === 'email');
     underline(LAYOUT.emailTop, LAYOUT.emailBottom, active === 'email');
     c.fillStyle = '#2f2a3a';
     c.font = TEXT_FONT;
@@ -296,7 +204,7 @@ export function createLetterCanvas(): LetterCanvas {
     }
 
     // --- Message (ruled, multi-line) ---
-    label('Message', LAYOUT.messageLabelY, active === 'message');
+    label('内容 (Message)', LAYOUT.messageLabelY, active === 'message');
     c.strokeStyle = 'rgba(120, 140, 170, 0.3)';
     c.lineWidth = 1;
     for (let y = LAYOUT.messageTop + LINE_GAP; y <= LAYOUT.messageBottom; y += LINE_GAP) {
@@ -320,8 +228,6 @@ export function createLetterCanvas(): LetterCanvas {
       const lastLine = visible[lastIdx] ?? '';
       caretAt(MARGIN_X + c.measureText(lastLine).width + 1, firstRowY + lastIdx * LINE_GAP);
     }
-
-    drawSendButton(status);
 
     void writing;
     texture.needsUpdate = true;

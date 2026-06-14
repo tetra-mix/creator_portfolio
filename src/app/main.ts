@@ -8,6 +8,7 @@ import { makeSetPageTexture, setupInteractions } from '../features/interaction/i
 import { createTabs } from '../features/book/tabs';
 import { createDeskProps } from '../features/book/props';
 import { addM5StackChan } from '../features/book/m5stackchan';
+import { addPost } from '../features/book/post';
 import { createContactLetter } from '../features/contact/contactLetter';
 
 async function init() {
@@ -30,6 +31,7 @@ async function init() {
   // Guard against any sync failure so it can't tear down the render loop.
   try {
     addM5StackChan(ctx);
+    addPost(ctx);
   } catch (err) {
     console.error('[main] failed to add Blender props', err);
   }
