@@ -4,6 +4,7 @@ import type { SceneContext } from '../../shared/three/scene';
 import { CONFIG } from '../../shared/three/config';
 import type {
   CoverUserData,
+  MailboxUserData,
   PageGroupUserData,
   PageMeshUserData,
   PageSide,
@@ -11,6 +12,11 @@ import type {
 } from '../../shared/three/types';
 import { findLinkAt } from './linkRegistry';
 import type { GltfPropUserData } from '../book/gltfProp';
+import { createLetterWriter } from '../contact/contactForm';
+import type { ContactLetter } from '../contact/contactLetter';
+import { playLetterFlight } from '../contact/letterFlight';
+
+type ViewMode = 'book' | 'letter';
 
 // glTF props are added to the scene asynchronously, so collect them fresh
 // on each pointer event rather than caching at setup time.
@@ -23,12 +29,94 @@ export function setupInteractions(
   frontCover: THREE.Mesh,
   pageGroups: THREE.Group[],
   extraTargets: THREE.Object3D[] = [],
+  contact?: ContactLetter,
 ) {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let busy = false;
   let hoveredTab: THREE.Mesh | null = null;
   const HIGHLIGHT = 0xffff88;
+  const contactLetter = contact?.mesh;
+  const letterCanvas = contact?.canvas;
+
+  // --- Camera view modes: 'book' (default) and 'letter' (writing). ---
+  // Clicking the peeking letter orbits the camera around to face the angled
+  // sheet; clicking the peeking book orbits back. The user writes directly on
+  // the paper via a hidden input (no modal).
+  let viewMode: ViewMode = 'book';
+  const currentTarget = new THREE.Vector3(0, 0, 0);
+  // lookAt is imperative, so re-apply the (tweened) target every frame.
+  ctx.addUpdater(() => ctx.camera.lookAt(currentTarget));
+  const writer = contact ? createLetterWriter(contact.canvas) : null;
+  // True from a successful send until the "letter flies off" animation finishes;
+  // gates letter taps so the in-flight sheet can't be re-submitted.
+  let posting = false;
+
+  // Viewport-based zoom-out so the scene stays framed on small screens.
+  function viewportScale(): number {
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    const aspect = w / h;
+    let scale = 1;
+    if (w <= 360) scale = 1.9;
+    else if (w <= 480) scale = 1.7;
+    else if (w <= 640) scale = 1.5;
+    else if (w <= 820) scale = 1.25;
+    else scale = 1;
+    if (aspect < 0.7) scale *= 1.1;
+    return scale;
+  }
+
+  // Camera position + lookAt target for a given mode.
+  // - book:   look at the origin from the default raised/tilted offset.
+  // - letter: orbit around to face the angled sheet. The look-down angle is set
+  //           purely by viewPitchDeg (0 = level, 90 = straight down); the zoom
+  //           is the fixed viewDistance, so changing the pitch only tilts the
+  //           view without moving the camera nearer/farther. The whole offset is
+  //           then yawed by the letter's rotation so we end up square to it.
+  function cameraPlacementForMode(mode: ViewMode) {
+    const scale = viewportScale();
+    if (mode === 'letter') {
+      const target = CONFIG.letter.position.clone();
+      const pitch = THREE.MathUtils.degToRad(CONFIG.letter.viewPitchDeg);
+      // Unit direction from the letter toward the camera: raised by `pitch`,
+      // horizontal part pointing along +Z (toward the default viewing side).
+      const dir = new THREE.Vector3(0, Math.sin(pitch), Math.cos(pitch));
+      dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), CONFIG.letter.rotationY);
+      const dist = CONFIG.letter.viewDistance * scale;
+      return { pos: target.clone().addScaledVector(dir, dist), target };
+    }
+    return {
+      pos: new THREE.Vector3(0, CONFIG.cameraPos.y * scale, CONFIG.cameraPos.z * scale),
+      target: new THREE.Vector3(0, 0, 0),
+    };
+  }
+
+  // Pan the camera (position + lookAt target) to the given mode.
+  function panToMode(mode: ViewMode, onComplete?: () => void) {
+    const { pos, target } = cameraPlacementForMode(mode);
+    busy = true;
+    gsap.to(ctx.camera.position, {
+      x: pos.x,
+      y: pos.y,
+      z: pos.z,
+      duration: CONFIG.animDuration,
+      ease: CONFIG.animEase,
+    });
+    gsap.to(currentTarget, {
+      x: target.x,
+      y: target.y,
+      z: target.z,
+      duration: CONFIG.animDuration,
+      ease: CONFIG.animEase,
+      onUpdate: () => ctx.camera.lookAt(currentTarget),
+      onComplete: () => {
+        ctx.controls.target.copy(currentTarget);
+        busy = false;
+        onComplete?.();
+      },
+    });
+  }
 
   // --- "Tap the book" teaser: the cover peeks open and closes on a loop ---
   // until the user interacts for the first time, hinting that the book is clickable.
@@ -85,22 +173,15 @@ export function setupInteractions(
     adjustCameraForViewport();
   }
 
-  // Adjust the camera distance based on viewport to keep the book visible on small screens
+  // Place the camera for the ACTIVE view mode (book or letter). Used on init and
+  // resize, so resizing while writing a letter keeps the letter centered instead
+  // of snapping back to the book.
   function adjustCameraForViewport() {
-    const w = Math.max(1, window.innerWidth);
-    const h = Math.max(1, window.innerHeight);
-    const aspect = w / h;
-    const baseY = CONFIG.cameraPos.y;
-    const baseZ = CONFIG.cameraPos.z;
-    let scale = 1;
-    if (w <= 360) scale = 1.9;
-    else if (w <= 480) scale = 1.7;
-    else if (w <= 640) scale = 1.5;
-    else if (w <= 820) scale = 1.25;
-    else scale = 1;
-    if (aspect < 0.7) scale *= 1.1;
-    ctx.camera.position.set(0, baseY * scale, baseZ * scale);
-    ctx.camera.lookAt(0, 0, 0);
+    const { pos, target } = cameraPlacementForMode(viewMode);
+    ctx.camera.position.copy(pos);
+    currentTarget.copy(target);
+    ctx.camera.lookAt(currentTarget);
+    ctx.controls.target.copy(currentTarget);
   }
 
   //
@@ -145,11 +226,124 @@ export function setupInteractions(
     return 0;
   }
 
+  // Has a raycast from the current pointer hit the contact letter mesh?
+  function pointerHitsLetter(): boolean {
+    if (!contactLetter) return false;
+    return raycaster.intersectObject(contactLetter, true).length > 0;
+  }
+
+  // The UV (0..1, three.js convention) where the pointer hits the letter, or null.
+  function pointerLetterUV(): THREE.Vector2 | null {
+    if (!contactLetter) return null;
+    const hit = raycaster.intersectObject(contactLetter, true)[0];
+    return hit?.uv ?? null;
+  }
+
+  // Has a raycast from the current pointer hit the book (cover or any page)?
+  function pointerHitsBook(): boolean {
+    return raycaster.intersectObjects([frontCover, ...pageGroups], true).length > 0;
+  }
+
+  // The mailbox/post loads asynchronously, so look it up fresh from the scene
+  // each time (a captured reference would be null at setup). Returns null until
+  // the model has loaded and tagged itself with userData.isMailbox.
+  function findMailbox(): THREE.Object3D | null {
+    return (
+      ctx.scene.children.find((o) => (o.userData as Partial<MailboxUserData>).isMailbox) ?? null
+    );
+  }
+
+  // Has a raycast from the current pointer hit the post?
+  function pointerHitsPost(): boolean {
+    const post = findMailbox();
+    return !!post && raycaster.intersectObject(post, true).length > 0;
+  }
+
+  // World-space "slot" the letter flies into. Measured once at load time and
+  // cached on the post's userData (see post.ts). Null if the post isn't loaded.
+  function mailboxSlotWorld(): THREE.Vector3 | null {
+    const post = findMailbox();
+    return (post?.userData as Partial<MailboxUserData>)?.slot ?? null;
+  }
+
+  // Submit the letter and, on success, fly it into the post and return to book.
+  function submitAndFly(): void {
+    if (posting) return; // guard against double-taps
+    writer?.submit(() => {
+      posting = true;
+      const slot = mailboxSlotWorld();
+      // Pan back to the book shortly after the letter starts its flight.
+      window.setTimeout(() => {
+        viewMode = 'book';
+        panToMode('book');
+      }, 700);
+      if (contactLetter) {
+        playLetterFlight(contactLetter, slot, () => {
+          writer?.reset();
+          posting = false;
+        });
+      } else {
+        writer?.reset();
+        posting = false;
+      }
+    });
+  }
+
   function onMouseClick(event: MouseEvent) {
     // First user action ends the "tap the book" teaser animation
     // and settles the half-open cover back to closed.
     stopCoverTeaser(true);
     if (busy) return;
+
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, ctx.camera);
+
+    // --- Letter mode: tap the post to send, tap a field to switch the caret,
+    // tap the book to leave. Hard-gate so book flips / tabs never fire here. ---
+    if (viewMode === 'letter') {
+      // While the sent letter is flying into the post, ignore all taps so it
+      // can't be re-submitted or re-focused mid-animation.
+      if (posting) return;
+
+      // Tap the post → submit + fly the letter into it.
+      if (pointerHitsPost()) {
+        submitAndFly();
+        return;
+      }
+
+      // Tap a field region → move the caret there.
+      const uv = pointerLetterUV();
+      if (uv && letterCanvas) {
+        const hit = letterCanvas.hitTest(uv.x, uv.y);
+        if (hit) {
+          writer?.focusField(hit);
+          return;
+        }
+      }
+      if (pointerHitsBook()) {
+        writer?.end();
+        viewMode = 'book';
+        panToMode('book'); // camera-only; book keeps its page state
+      }
+      return;
+    }
+
+    // --- Book mode: clicking the peeking letter orbits over to face it. ---
+    if (pointerHitsLetter()) {
+      viewMode = 'letter';
+      // Pick the tapped field (default subject) and focus the hidden input NOW
+      // (synchronously in the click handler) so mobile keyboards open — iOS
+      // ignores focus() fired later from the pan callback.
+      const uv = pointerLetterUV();
+      const hit = uv && letterCanvas ? letterCanvas.hitTest(uv.x, uv.y) : null;
+      // Opening the letter focuses a writable field; 'send'/null fall back to subject.
+      const field = hit === 'subject' || hit === 'email' || hit === 'message' ? hit : 'subject';
+      writer?.begin(field);
+      panToMode('letter');
+      return;
+    }
+
     // If a tab is currently hovered, prioritize its navigation.
     if (hoveredTab) {
       const ud = hoveredTab.userData as TabUserData;
@@ -159,9 +353,6 @@ export function setupInteractions(
         return;
       }
     }
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, ctx.camera);
 
     // Include any clickable glTF props sitting directly under the scene.
     const targets: THREE.Object3D[] = [
@@ -328,15 +519,35 @@ export function setupInteractions(
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, ctx.camera);
 
-    // Show a pointer cursor only over things a click actually responds to:
-    // the current top page(s)/cover, the navigation tabs, and clickable props.
-    const clickableTargets = [
-      ...getInteractiveObjects(frontCover, pageGroups),
-      ...extraTargets,
-      ...collectGltfProps(ctx.scene),
-    ];
+    // Show a pointer cursor only over things a click actually responds to.
+    // The clickable set depends on the view mode.
+    let clickableTargets: THREE.Object3D[];
+    if (viewMode === 'letter') {
+      // While writing: the post (to send) and the book (to go back) are clickable.
+      const post = findMailbox();
+      clickableTargets = [frontCover, ...pageGroups, ...(post ? [post] : [])];
+    } else {
+      // Book mode: top page(s)/cover, tabs, props, and the peeking letter.
+      clickableTargets = [
+        ...getInteractiveObjects(frontCover, pageGroups),
+        ...extraTargets,
+        ...collectGltfProps(ctx.scene),
+        ...(contactLetter ? [contactLetter] : []),
+      ];
+    }
     const clickableHits = raycaster.intersectObjects(clickableTargets, true);
     ctx.renderer.domElement.style.cursor = clickableHits.length > 0 ? 'pointer' : 'default';
+
+    // Tab hover highlight only applies in book mode.
+    if (viewMode === 'letter') {
+      if (hoveredTab) {
+        const udPrev = hoveredTab.userData as TabUserData;
+        const mPrev = hoveredTab.material as THREE.MeshStandardMaterial;
+        if (udPrev.baseColor != null) mPrev.color.setHex(udPrev.baseColor);
+        hoveredTab = null;
+      }
+      return;
+    }
 
     const hits = raycaster.intersectObjects(extraTargets, true);
     let newHover: THREE.Mesh | null = null;
@@ -398,6 +609,7 @@ export function setupInteractions(
       window.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       if (teaser) teaser.kill();
+      writer?.dispose();
     },
   };
 }

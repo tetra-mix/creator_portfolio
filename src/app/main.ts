@@ -8,6 +8,8 @@ import { makeSetPageTexture, setupInteractions } from '../features/interaction/i
 import { createTabs } from '../features/book/tabs';
 import { createDeskProps } from '../features/book/props';
 import { addM5StackChan } from '../features/book/m5stackchan';
+import { addPost } from '../features/book/post';
+import { createContactLetter } from '../features/contact/contactLetter';
 
 async function init() {
   const app = document.getElementById('app');
@@ -23,16 +25,18 @@ async function init() {
   createDeskProps(ctx.scene);
   const { pageGroups, frontCoverMesh } = createBook(ctx.scene);
   const tabs = createTabs(pageGroups);
+  const contact = createContactLetter(ctx.scene);
 
   // Load Blender props asynchronously so they never block first paint.
   // Guard against any sync failure so it can't tear down the render loop.
   try {
     addM5StackChan(ctx);
+    addPost(ctx);
   } catch (err) {
     console.error('[main] failed to add Blender props', err);
   }
 
-  setupInteractions(ctx, frontCoverMesh, pageGroups, tabs);
+  setupInteractions(ctx, frontCoverMesh, pageGroups, tabs, contact);
 
   const clock = new THREE.Clock();
   ctx.renderer.setAnimationLoop(() => {

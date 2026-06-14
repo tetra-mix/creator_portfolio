@@ -20,6 +20,17 @@ export interface PageGroupUserData {
 
 export type AnyUserData = Partial<CoverUserData & PageMeshUserData & PageGroupUserData>;
 
+export interface ContactLetterUserData {
+  isContactLetter: true;
+}
+
+export interface MailboxUserData {
+  isMailbox: true;
+  // World-space point the posted letter flies into, measured once at load time
+  // (the post's bounding box is static, so no need to recompute per send).
+  slot: THREE.Vector3;
+}
+
 export interface TabUserData {
   isTab: true;
   targetPageIndex: number;

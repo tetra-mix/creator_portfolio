@@ -1,13 +1,16 @@
 [
-  "![Profile Picture](/images/profile.jpg)\n # Ryoma Yoshitaka\n Degital Creator & Developer",
+  "![Profile Picture](/images/profile.jpg)\n # Ryoma Yoshitaka\nDigital Creator & Developer",
   "# About Me\n\n![Profile Picture](/images/profile_mini.png)\n\nクリエータ志望のプログラマ\nまだ誰みたことがない体験を作りたい",
   "# Accounts\n青文字をクリック！\n| | | \n| --- | --- |\n| Github | [tetra-mix](https://github.com/tetra-mix) |\n| Qiita | [ryouma_yoshitaka](http://qiita.com/ryouma_yoshitaka) |\n| X / Twitter | [@yoshitaka_ryoma](https://x.com/yoshitaka_ryoma) |\n| Instagram | [ryoma.yoshitaka](https://www.instagram.com/ryoma.yoshitaka/) |\n| YouTube | [@ryouma_yoshitaka](https://www.youtube.com/@ryouma_yoshitaka) |",
   "# History\n 2020\n  - 第4回U-16プログラミングコンテスト三重大会 最優秀賞受賞\n 2021\n  - 全国中学高校Webコンテスト 銀賞/ベストドメインネーミング賞\n 2022\n  - ライフイズテックコンテスト 夏 SDGs問題解決部門 特別賞\n  - ライフイズテックコンテスト 冬 身の回りの問題解決部門 優秀賞\n  - 第6回U-16プログラミングコンテスト三重大会 最優秀賞",
   "2023\n  - 第6回U-16プログラミングコンテスト三重大会 最優秀賞\n  - 第25回全国中学高校Webコンテスト 金賞\n  - 三重県玉城町より 村山賞\n  - 鈴鹿高専 電子情報工学科に入学\n 2024\n  - 高専ビジネスコンテストin鈴鹿高専 ギーク賞\n  - NIT Toba Hackathon 企業賞\n  - 2024年度 未踏ジュニアに採択\n  - 未踏ジュニアスーパークリエータ認定",
   "2025\n  - Web×Iotメーカーズチャレンジin三重 最優秀賞\n  - 高専ビジネスコンテストin鈴鹿高専 うるる賞\n  - Web×Iotメーカーズチャレンジグランプリ 総務省国際戦略局長賞\n  - NIT Toba Hackathon 企業賞 / 最優秀賞\n  - kloud ハッカソン#6 最優秀賞\n  - 高専プロコン競技部門 準決勝進出\n  - パソコン甲子園モバイル部門 ベストアイデア賞\n  - Hack U Kosen 2025 HappyHacking賞",
-  "# Contact\nお問い合わせはこちらからお願いします。",
+  "# Contact\nお問い合わせ方法\n1. 右の便箋をクリック\n2. 便箋に内容を入力する\n3. ポストをクリックして送信\n\nメールからでも可能です\nryouma@clowntetra.jp\n\n![図](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/f73d3cbc810c4a159678d0a7a95beb24/message.png)",
   "# Projects\n## 目次 - 最近の作品 -\n- こころも (Developping)\n- IchigoPerfe (Debelopping)\n- 星月夜 (Debelopping)\n- 鈴鹿回路 (New)\n- ひだまり\n- ｽﾀｯｸﾁｬﾝたちの会話をのぞこう\n- NinjaかくれんぼIoT\n- Cculture Commpass\n- みまもりぐるみ\n- FairyGuide",
   "",
-  "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>",
-  "![基板](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/a30ed00f1b9a49c4adf741107ac0edb5/suzukakairo_circuit.png)\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>\n\n![加工機器](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/bbc5ebfb4b07468082afa2db98ae22da/machine.png)\n<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>"
+  "# 鈴鹿回路\n<small>Hack U Kosen 2025 in Osaka でHappy Hacking賞をいただきました！テーマは「高専博覧会を開催しよう！」</small>\n<small>「鈴鹿といえばサーキット」「回路は英語でCircuit」という発想から電子になって回路上を走るレースゲームを作成しました！</small>\n\n<small>リンク: [Hack U KOSEN 2025 OSAKA](https://hacku.yahoo.co.jp/kosen2025/)</small>",
+  "![基板](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/a30ed00f1b9a49c4adf741107ac0edb5/suzukakairo_circuit.png)\n<small>2年生~4年生の5人チームで開発。私はハード部分を担当しました。こだわりポイントはなんと言ってコントローラー。ジャンパ線で操作します。また、マップを物理的に回路で作り接続するといった体験にもこだわりました。</small>\n\n![加工機器](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/bbc5ebfb4b07468082afa2db98ae22da/machine.png)\n<small>ゲーム以外にもハイスコアを出した人に配るようのアクキーとかを作ってみたり、削り出し基板をつくってみたりもしました。新しいことをするのは楽しい〜 (  ˃ ᵕ ˂  )</small>",
+  "# ひだまり\n<small>パソコン甲子園モバイル部門でベストアイデア賞をいただきました！</small>\n![ひだまりサムネ](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/461959a44f904f398bd0d80c73193d19/hidamari.png)\n<small>自身の気持ちを伝えることができない、発達障害や精神疾患を抱える子どもたちに対して、気持ちを伝えるハードルを下げるアプリを開発しました。またこれにより、周囲の人や地方専門スタッフの抱える課題を緩和させます。 </small>",
+  "",
+  "## ｽﾀｯｸﾁｬﾝたちの会話をのぞこう\n<small>詳細: [ProtoPedia ｽﾀｯｸﾁｬﾝたちの会話をのぞこう](https://protopedia.net/prototype/7736)</small>\n![ｽﾀｯｸﾁｬﾝたちの会話をのぞこうサムネ](https://images.microcms-assets.io/assets/4dbc872be77b4312a691e47bcc2ea965/699af4cd466946f1ad8a93981311e680/stackchans.png)\n<small>ゆきちゃん、しゅんくん、そらくん。</small>\n<small>3人のｽﾀｯｸﾁｬﾝたちが家族として暮らしています。</small>\n<small>今日はどんな会話をしているのかな？</small>\n<small>ｽﾀｯｸﾁｬﾝたちのの“日常”をそっとのぞいてみませんか？</small>"
 ]
