@@ -32,7 +32,7 @@ importers:
         version: 9.39.4
       '@types/node':
         specifier: ^24.10.1
-        version: 24.10.4
+        version: 24.13.2
       '@types/react':
         specifier: ^19.2.5
         version: 19.2.17
@@ -41,7 +41,7 @@ importers:
         version: 19.2.3(@types/react@19.2.17)
       '@vitejs/plugin-react-swc':
         specifier: ^4.2.2
-        version: 4.2.2(rolldown-vite@7.2.5(@types/node@24.10.4))
+        version: 4.2.2(rolldown-vite@7.2.5(@types/node@24.13.2))
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -74,7 +74,7 @@ importers:
         version: 8.50.1(eslint@9.39.4)(typescript@5.9.3)
       vite:
         specifier: npm:rolldown-vite@7.2.5
-        version: rolldown-vite@7.2.5(@types/node@24.10.4)
+        version: rolldown-vite@7.2.5(@types/node@24.13.2)
 
 packages:
 
@@ -417,8 +417,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@24.10.4':
-    resolution: {integrity: sha512-vnDVpYPMzs4wunl27jHrfmwojOGKya0xyM3sH+UE5iv5uPS6vX7UIoh6m+vQc5LGBq52HBKPIn/zcSZVzeDEZg==}
+  '@types/node@24.13.2':
+    resolution: {integrity: sha512-fRa09kZTgu8o71KFcDjUFuc7F+dEbZYZmkI0mg5YBTRs0yMKjYHsq/c0urDKeDb+D5qVgXOdFcuu+DZPKOITwA==}
 
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
@@ -1076,8 +1076,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@7.16.0:
-    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
   update-browserslist-db@1.2.3:
     resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
@@ -1436,9 +1436,9 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@24.10.4':
+  '@types/node@24.13.2':
     dependencies:
-      undici-types: 7.16.0
+      undici-types: 7.18.2
 
   '@types/react-dom@19.2.3(@types/react@19.2.17)':
     dependencies:
@@ -1553,11 +1553,11 @@ snapshots:
       '@typescript-eslint/types': 8.50.1
       eslint-visitor-keys: 4.2.1
 
-  '@vitejs/plugin-react-swc@4.2.2(rolldown-vite@7.2.5(@types/node@24.10.4))':
+  '@vitejs/plugin-react-swc@4.2.2(rolldown-vite@7.2.5(@types/node@24.13.2))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.47
       '@swc/core': 1.15.7
-      vite: rolldown-vite@7.2.5(@types/node@24.10.4)
+      vite: rolldown-vite@7.2.5(@types/node@24.13.2)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -1955,7 +1955,7 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
-  rolldown-vite@7.2.5(@types/node@24.10.4):
+  rolldown-vite@7.2.5(@types/node@24.13.2):
     dependencies:
       '@oxc-project/runtime': 0.97.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -1965,7 +1965,7 @@ snapshots:
       rolldown: 1.0.0-beta.50
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 24.10.4
+      '@types/node': 24.13.2
       fsevents: 2.3.3
 
   rolldown@1.0.0-beta.50:
@@ -2039,7 +2039,7 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  undici-types@7.16.0: {}
+  undici-types@7.18.2: {}
 
   update-browserslist-db@1.2.3(browserslist@4.28.4):
     dependencies:
