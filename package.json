@@ -16,7 +16,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@types/three": "^0.184.0",
+    "@types/three": "^0.185.0",
     "gsap": "^3.14.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
