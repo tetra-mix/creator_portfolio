@@ -32,7 +32,7 @@ importers:
         version: 9.39.5
       '@types/node':
         specifier: ^24.10.1
-        version: 24.13.3
+        version: 24.13.4
       '@types/react':
         specifier: ^19.2.5
         version: 19.2.18
@@ -41,7 +41,7 @@ importers:
         version: 19.2.7(@types/react@19.2.18)
       '@vitejs/plugin-react-swc':
         specifier: ^4.2.2
-        version: 4.3.3(rolldown-vite@7.3.1(@types/node@24.13.3))
+        version: 4.3.3(rolldown-vite@7.3.1(@types/node@24.13.4))
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -74,7 +74,7 @@ importers:
         version: 8.70.0(eslint@9.39.5)(typescript@5.9.3)
       vite:
         specifier: npm:rolldown-vite@7.3.1
-        version: rolldown-vite@7.3.1(@types/node@24.13.3)
+        version: rolldown-vite@7.3.1(@types/node@24.13.4)
 
 packages:
 
@@ -439,8 +439,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@24.13.3':
-    resolution: {integrity: sha512-Dh8vAsV36ig5wa9OX4pXvMc9D3Veibfw2wix0CUwYODLD8nkj9UsLjASr49nPg+2eKzxhBV+v7L8pXvT4e639Q==}
+  '@types/node@24.13.4':
+    resolution: {integrity: sha512-YJ7EqCstVTzIr0fMr7qul/977en+pQHrfmuKIo6Zr9i75Be21dr3MovcfvGtyvi2HAUrRerWps5sMO9I7WaxDw==}
 
   '@types/react-dom@19.2.7':
     resolution: {integrity: sha512-I8bPpDLcHBv1qiIiXDCy71Rt8eQDKJP0sMSWJphDdAcdqiJ1sGpZamavoEIRZmYzjia9LuEb2HlYdDpmoENpvQ==}
@@ -1487,7 +1487,7 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@24.13.3':
+  '@types/node@24.13.4':
     dependencies:
       undici-types: 7.18.2
 
@@ -1603,11 +1603,11 @@ snapshots:
       '@typescript-eslint/types': 8.70.0
       eslint-visitor-keys: 5.0.1
 
-  '@vitejs/plugin-react-swc@4.3.3(rolldown-vite@7.3.1(@types/node@24.13.3))':
+  '@vitejs/plugin-react-swc@4.3.3(rolldown-vite@7.3.1(@types/node@24.13.4))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       '@swc/core': 1.15.47
-      vite: rolldown-vite@7.3.1(@types/node@24.13.3)
+      vite: rolldown-vite@7.3.1(@types/node@24.13.4)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -2013,7 +2013,7 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
-  rolldown-vite@7.3.1(@types/node@24.13.3):
+  rolldown-vite@7.3.1(@types/node@24.13.4):
     dependencies:
       '@oxc-project/runtime': 0.101.0
       fdir: 6.5.0(picomatch@4.0.3)
@@ -2023,7 +2023,7 @@ snapshots:
       rolldown: 1.0.0-beta.53
       tinyglobby: 0.2.15
     optionalDependencies:
-      '@types/node': 24.13.3
+      '@types/node': 24.13.4
       fsevents: 2.3.3
 
   rolldown@1.0.0-beta.53:
